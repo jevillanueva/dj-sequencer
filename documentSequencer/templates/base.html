@@ -1,0 +1,32 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'global.css' %}">
+    <title>{% block title %}{%endblock%}</title>
+</head>
+
+<body>
+    {% if user.is_authenticated %}
+    <section class="hero is-small ">
+        <div class="hero-body">
+            <p class="subtitle ">{% trans "welcome" %} {{ user.username }}!</p>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button class="button is-small is-responsive" type="submit">{%trans "logout" %}</button>
+            </form>
+        </div>
+    </section>
+    {% endif %}
+    {% block menu %}
+    {% endblock %}
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

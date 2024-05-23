@@ -53,10 +53,11 @@ class Sequence(SoftDeleteMixin):
 
     def __str__(self):
         return f'{self.department} - {self.document} - {self.year} - {self.sequence}'
-    
+
 class Emission(SoftDeleteMixin):
     sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE)
     date = models.DateField()
+    new = models.BooleanField(default=True)
     received = models.BooleanField(default=False)
     date_received = models.DateField(null=True, blank=True)
     
@@ -70,3 +71,13 @@ class EmissionFile(SoftDeleteMixin):
     
     def __str__(self):
         return f'{self.emission} - {self.file}'
+    
+class UserDepartment(SoftDeleteMixin):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ['user', 'department']
+    
+    def __str__(self):
+        return f'{self.user} - {self.department}'
