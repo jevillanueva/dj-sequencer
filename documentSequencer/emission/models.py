@@ -60,7 +60,7 @@ class Sequence(SoftDeleteMixin):
 
 class Emission(SoftDeleteMixin):
     sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(auto_now=True)
     new = models.BooleanField(default=True)
     received = models.BooleanField(default=False)
     date_received = models.DateField(null=True, blank=True)
