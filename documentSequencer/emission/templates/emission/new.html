@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block menu %}
+<section class="hero is-info is-small">
+    <div class="hero-body">
+        <a class="title" href="{%url 'emission:index' %}">◀ Home</a>
+        {% if emission %}
+        <h1 class="subtitle">New Task</h1>
+        {% else %}
+        <h1 class="subtitle">Edit Task</h1>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="box">
+            <form method="post" action="{% if task %}{% url 'tasks:edit' task.id  %}{%endif%}">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="field">
+                    <input class="input is-primary" type="text" name="content" id="content" value="{{task.content}}"
+                        placeholder="Content">
+                    {{ form.content.errors }}
+                </div>
+                <div class="field">
+                    <button class="button is-info" type="submit">📝 Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -10,7 +10,9 @@
     <div class="container">
         <div class="fixed-grid has-1-cols">
             <div class="grid">
-                
+                {% for emission in emissions %}
+                <h2 class="title">{{ emission.sequence }}</h2>
+                {% endfor %}
             </div>
         </div>
     </div>

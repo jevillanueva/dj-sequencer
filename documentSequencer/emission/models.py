@@ -1,13 +1,15 @@
+import uuid
 from django.db import models
 from django.utils import timezone
-
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class ActiveManager (models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(active=True)
+        return super().get_queryset().filter(is_active=True)
     
 class SoftDeleteMixin(models.Model):
-    active = models.BooleanField(default=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     
@@ -15,7 +17,7 @@ class SoftDeleteMixin(models.Model):
     all_objects = models.Manager()  # Manager to include inactive objects
 
     def delete(self, *args, **kwargs):
-        self.active = False
+        self.is_active = False
         self.deleted_at = timezone.now()
         
         self.save()
@@ -23,6 +25,8 @@ class SoftDeleteMixin(models.Model):
     class Meta:
         abstract = True
 
+class CustomUser(AbstractUser, SoftDeleteMixin):
+    pass
 class Department(SoftDeleteMixin):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=500)
@@ -60,6 +64,8 @@ class Emission(SoftDeleteMixin):
     new = models.BooleanField(default=True)
     received = models.BooleanField(default=False)
     date_received = models.DateField(null=True, blank=True)
+    detail = models.TextField(max_length=500, blank=True)
+    destination = models.TextField(max_length=500, default='N/A')
     
     def __str__(self):
         return f'{self.sequence} - {self.date}'
@@ -73,7 +79,7 @@ class EmissionFile(SoftDeleteMixin):
         return f'{self.emission} - {self.file}'
     
 class UserDepartment(SoftDeleteMixin):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     
     class Meta:
