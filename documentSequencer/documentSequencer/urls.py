@@ -30,5 +30,5 @@ urlpatterns = [
     path(
         "accounts/logout/", auth_views.LogoutView.as_view(next_page="/"), name="logout"
     ),
-    path("accounts/", include(auth_urls)),
+    path("accounts/", include(auth_urls)), #TODO Customize other auth views
 ]

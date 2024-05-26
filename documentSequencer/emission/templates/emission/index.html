@@ -1,20 +1,60 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block content %}
+{% load static %}
 <section class="hero is-primary is-small">
     <div class="hero-body">
         <p class="title">{% trans "emission" %}</p>
     </div>
 </section>
 <section class="section">
-    <div class="container">
-        <div class="fixed-grid has-1-cols">
-            <div class="grid">
-                {% for emission in emissions %}
-                <h2 class="title">{{ emission.sequence }}</h2>
-                {% endfor %}
+    <div class="container is-flex is-flex-direction-column">
+        <div class="spacing">
+            {%if user_departments %}
+            <a href="{% url 'emissions:new' %}" class="button is-primary is-rounded">
+                <span class="icon is-small"><i class="fas fa-circle-plus" aria-hidden="true"></i></span>
+                <span>{% trans "new emission" %}</span>
+            </a>
+            {% else %}
+            <article class="message">
+                <div class="message-body">
+                    {% trans "user not assigned to departments"%}
+                </div>
+            </article>
+            {% endif %}
+        </div>
+        <div class="spacing tabs-wrapper">
+            <div class="tabs  is-toggle is-toggle-rounded is-fullwidth">
+                <ul>
+                    {% for user_department in user_departments %}
+                    <li class="{% if forloop.first %}is-active{% endif %}">
+                        <a>{{ user_department.department.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="tabs-content">
+                <ul>
+                    {% for user_department in user_departments %}
+                    <li class="{% if forloop.first %}is-active{% endif %}">
+                        <div>
+                            <div class="fixed-grid has-1-cols">
+                                <div class="grid">
+                                    {{ user_department.department.name }}
+                                    {% for emission in emissions %}
+                                    <h2 class="title">{{ emission.sequence }}</h2>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
 </section>
+{% endblock %}
+{% block plugins %}
+<script src="{% static 'js/bulmaJS/tabs.js' %}"></script>
 {% endblock %}
