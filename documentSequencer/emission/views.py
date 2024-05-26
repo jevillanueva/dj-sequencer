@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import activate
+from django.core.paginator import Paginator
 
 from .forms import EmissionForm
 from .models import Emission, UserDepartment
@@ -14,12 +15,27 @@ def index(request):
     user = request.user  # the user
     email = user.email  # their email
     username = user.username  # their username
-    emissions = Emission.objects.filter()
+    # emissions = Emission.objects.filter()
     user_departments = UserDepartment.objects.filter(user=user)
+    emissions_by_department = {}
+    for user_department in user_departments:
+        department = user_department.department
+        emissions_list = Emission.objects.filter(user=user, sequence__department=department)
+        paginator = Paginator(emissions_list, 10)
+        page_number = request.GET.get(f"page_{department.id}", 1)
+        page_obj = paginator.get_page(page_number)
+        emissions_by_department[department.id] = page_obj
+    tab = request.GET.get(f"tab", 0)
+    if not str(tab).isdigit():
+        tab = 0
     return render(
         request,
         "emission/index.html",
-        {"emissions": emissions, "user_departments": user_departments},
+        {
+            "emissions_by_department": emissions_by_department,
+            "user_departments": user_departments,
+            "tab":int(tab),
+        },
     )
 
 
@@ -27,7 +43,7 @@ def index(request):
 # @permission_required('todo.can_view_tasks', raise_exception=True)
 def new(request):
     if request.method == "POST":
-        form = EmissionForm(request.POST,user=request.user)
+        form = EmissionForm(request.POST, user=request.user)
         if form.is_valid():
             emission = form.save()
             return redirect("emissions:index")

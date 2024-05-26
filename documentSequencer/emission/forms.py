@@ -1,4 +1,5 @@
 from django import forms
+from django.db import transaction
 from .models import Emission, UserDepartment, Sequence
 
 
@@ -19,8 +20,10 @@ class EmissionForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        if self.user:
-            instance.user = self.user
+        sequence = Sequence.objects.select_for_update().get(id=instance.sequence.id)
+        sequence.increment()
+        instance.number = sequence.sequence
+        instance.user = self.user
         if commit:
             instance.save()
         return instance
