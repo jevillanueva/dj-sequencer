@@ -1,11 +1,12 @@
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
+import uuid
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import activate
 from django.core.paginator import Paginator
 
-from .forms import EmissionForm
-from .models import Emission, UserDepartment
+from .forms import EmissionByDepartmentForm, EmissionForm
+from .models import Department, Emission, Sequence, UserDepartment
 
 
 # Create your views here.
@@ -49,6 +50,27 @@ def new(request):
             return redirect("emissions:index")
     else:
         form = EmissionForm(user=request.user)
+    return render(request, "emission/new.html", {"form": form, "emission": None})
+
+@login_required
+# @permission_required('todo.can_view_tasks', raise_exception=True)
+def new(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    department = get_object_or_404(Department, id=uid)
+    user_departments = UserDepartment.objects.filter(user=user, department=department)
+    if not user_departments:
+        raise Http404("No such department")
+    sequence = Sequence.objects.filter(department=department, can_emit=True).first()
+    if not sequence:
+        raise Http404("No sequence available")
+    if request.method == "POST":
+        form = EmissionByDepartmentForm(request.POST, user=request.user, department=department)
+        if form.is_valid():
+            emission = form.save()
+            return redirect("emissions:index")
+    else:
+        form = EmissionByDepartmentForm(user=request.user, department=department)
     return render(request, "emission/new.html", {"form": form, "emission": None})
 
 
