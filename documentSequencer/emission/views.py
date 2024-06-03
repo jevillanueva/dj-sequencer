@@ -21,7 +21,9 @@ def index(request):
     emissions_by_department = {}
     for user_department in user_departments:
         department = user_department.department
-        emissions_list = Emission.objects.filter(user=user, sequence__department=department)
+        emissions_list = Emission.objects.filter(
+            user=user, sequence__department=department
+        )
         paginator = Paginator(emissions_list, 10)
         page_number = request.GET.get(f"page_{department.id}", 1)
         page_obj = paginator.get_page(page_number)
@@ -35,7 +37,7 @@ def index(request):
         {
             "emissions_by_department": emissions_by_department,
             "user_departments": user_departments,
-            "tab":int(tab),
+            "tab": int(tab),
         },
     )
 
@@ -52,6 +54,7 @@ def new(request):
         form = EmissionForm(user=request.user)
     return render(request, "emission/new.html", {"form": form, "emission": None})
 
+
 @login_required
 # @permission_required('todo.can_view_tasks', raise_exception=True)
 def new(request, id):
@@ -65,13 +68,52 @@ def new(request, id):
     if not sequence:
         raise Http404("No sequence available")
     if request.method == "POST":
-        form = EmissionByDepartmentForm(request.POST, user=request.user, department=department)
+        form = EmissionByDepartmentForm(
+            request.POST, user=request.user, department=department
+        )
         if form.is_valid():
             emission = form.save()
             return redirect("emissions:index")
     else:
         form = EmissionByDepartmentForm(user=request.user, department=department)
-    return render(request, "emission/new.html", {"form": form, "emission": None})
+    return render(request, "emission/emission.html", {"form": form, "emission": None})
+
+
+@login_required
+# @permission_required('todo.can_view_tasks', raise_exception=True)
+def edit(request, id):
+    activate("es")
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    if emission.user != user:
+        raise Http404("No such emission")
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department
+    )
+    if not user_departments:
+        raise Http404("No such department")
+    if not emission.sequence.can_emit:
+        raise Http404("No sequence available")
+    if request.method == "POST":
+        form = EmissionByDepartmentForm(
+            request.POST,
+            user=user,
+            department=emission.sequence.department,
+            instance=emission,
+        )
+        if form.is_valid():
+            emission = form.save()
+            return redirect("emissions:index")
+    else:
+        form = EmissionByDepartmentForm(
+            user=request.user,
+            department=emission.sequence.department,
+            instance=emission,
+        )
+    return render(
+        request, "emission/emission.html", {"form": form, "emission": emission}
+    )
 
 
 @login_required

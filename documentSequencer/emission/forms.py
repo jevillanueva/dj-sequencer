@@ -37,6 +37,10 @@ class EmissionByDepartmentForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.pk:
+            self.fields["sequence"].disabled = True
+
         if self.user:
             user_departments = UserDepartment.objects.filter(user=self.user)
             self.fields["sequence"].queryset = Sequence.objects.filter(
@@ -46,10 +50,11 @@ class EmissionByDepartmentForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        sequence = Sequence.objects.select_for_update().get(id=instance.sequence.id)
-        sequence.increment()
-        instance.number = sequence.sequence
-        instance.user = self.user
+        if not instance.pk:
+            sequence = Sequence.objects.select_for_update().get(id=instance.sequence.id)
+            sequence.increment()
+            instance.number = sequence.sequence
+            instance.user = self.user
         if commit:
             instance.save()
         return instance
