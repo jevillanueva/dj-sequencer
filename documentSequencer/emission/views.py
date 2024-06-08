@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import activate
 from django.core.paginator import Paginator
 
-from .forms import EmissionByDepartmentForm, EmissionForm
+from .forms import EmissionByDepartmentForm, EmissionByDepartmentFormEdit, EmissionForm
 from .models import Department, Emission, Sequence, UserDepartment
 
 
@@ -96,7 +96,7 @@ def edit(request, id):
     if not emission.sequence.can_emit:
         raise Http404("No sequence available")
     if request.method == "POST":
-        form = EmissionByDepartmentForm(
+        form = EmissionByDepartmentFormEdit(
             request.POST,
             user=user,
             department=emission.sequence.department,
@@ -106,7 +106,7 @@ def edit(request, id):
             emission = form.save()
             return redirect("emissions:index")
     else:
-        form = EmissionByDepartmentForm(
+        form = EmissionByDepartmentFormEdit(
             user=request.user,
             department=emission.sequence.department,
             instance=emission,

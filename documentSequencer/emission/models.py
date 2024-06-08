@@ -59,6 +59,7 @@ class Sequence(SoftDeleteMixin):
     def increment(self):
         self.sequence += 1
         self.save()
+        return self.sequence
 
     def __str__(self):
         return f'{self.sequence}: {self.department} - {self.document} - {self.year}'
