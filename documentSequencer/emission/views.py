@@ -2,8 +2,9 @@ from datetime import datetime
 import uuid
 from django.http import Http404, HttpResponse
 from django.db.models import Q
+from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import activate
 from django.core.paginator import Paginator
 
@@ -146,6 +147,26 @@ def edit(request, id):
     return render(
         request, "emission/emission.html", {"form": form, "emission": emission}
     )
+
+
+@login_required
+@permission_required("emission.can_receive", raise_exception=True)
+def receive(request, id):
+    activate("es")
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    if emission.sequence.department not in UserDepartment.objects.filter(
+        user=user
+    ).values_list("department", flat=True):
+        raise Http404("No such emission")
+    if emission.received:
+        raise Http404("Emission already received")
+    emission.received = True
+    emission.user_received = user
+    emission.date_received = timezone.now()
+    emission.save()
+    return redirect("emissions:index")
 
 
 @login_required

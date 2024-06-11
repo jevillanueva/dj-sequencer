@@ -79,6 +79,14 @@ class Emission(SoftDeleteMixin):
     def __str__(self):
         return f'{self.number} - {self.detail} - {self.destination} - {self.date}'
     
+    class Meta:
+        permissions = [
+            ('can_receive', 'Can receive emission'),
+            ('can_reasign', 'Can reasign emission'),
+            
+        ]
+        
+    
 class EmissionFile(SoftDeleteMixin):
     emission = models.ForeignKey(Emission, on_delete=models.CASCADE)
     file = models.FileField(upload_to='emission_files/')
