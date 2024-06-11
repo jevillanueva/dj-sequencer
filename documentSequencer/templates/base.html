@@ -13,18 +13,52 @@
 
 <body>
     {% if user.is_authenticated %}
-    <section class="hero is-small ">
-        <div class="hero-body">
-            <p class="subtitle ">{% trans "welcome" %} {{ user.username }}!</p>
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button class="button is-small is-responsive" type="submit">{%trans "logout" %}</button>
-            </form>
+    <section class="hero is-small is-primary ">
+        <div class="hero-head">
+            <nav class="navbar">
+                <div class="container">
+                    <div class="navbar-brand">
+                        <a class="navbar-item has-text-grey" href="/">
+                            {% trans "emission" %}
+                        </a>
+                        <span class="navbar-burger" data-target="navbarMenuHeroA">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </div>
+                    <div id="navbarMenuHeroA" class="navbar-menu">
+                        <div class="navbar-end">
+                            <span class="navbar-item">
+                                <span class="has-text-grey">
+                                    {% trans "welcome" %} {{ user.username }}!
+                                </span>
+                            </span>
+                            <span class="navbar-item">
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="button is-small is-responsive is-rounded is-link"
+                                        type="submit">{%trans "logout" %}</button>
+                                </form>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="hero-body has-text-right">
+
+        </div>
+        <div class="hero-foot">
+            <div class="container">
+                {% block menu %}
+                {% endblock %}
+            </div>
         </div>
     </section>
     {% endif %}
-    {% block menu %}
-    {% endblock %}
+
     {% block content %}
     {% endblock %}
     <script src="{% static 'js/bulmaJS/bulma.js' %}"></script>

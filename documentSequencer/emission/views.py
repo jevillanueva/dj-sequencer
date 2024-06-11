@@ -1,5 +1,7 @@
+from datetime import datetime
 import uuid
 from django.http import Http404, HttpResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import activate
@@ -19,11 +21,38 @@ def index(request):
     # emissions = Emission.objects.filter()
     user_departments = UserDepartment.objects.filter(user=user)
     emissions_by_department = {}
+    query = request.GET.get("q")
+    # is a date
+    query_date = None
+    if query:
+        try:
+            query_date = datetime.strptime(query, "%d/%m/%Y")
+        except ValueError:
+            query_date = None
+    # is a number
+    query_number = None
+    if query:
+        try:
+            query_number = int(query)
+        except ValueError:
+            query_number = None
     for user_department in user_departments:
         department = user_department.department
-        emissions_list = Emission.objects.filter(
-            user=user, sequence__department=department
-        )
+        if query:
+            emissions_list = Emission.objects.filter(
+                Q(sequence__department=department)
+                & Q(user=user)
+                & (
+                    Q(detail__icontains=query)
+                    | Q(destination__icontains=query)
+                    | Q(number=query_number)
+                    | Q(date=query_date)
+                )
+            ).order_by("received", "-number")
+        else:
+            emissions_list = Emission.objects.filter(
+                user=user, sequence__department=department
+            ).order_by("received", "-number")
         paginator = Paginator(emissions_list, 10)
         page_number = request.GET.get(f"page_{department.id}", 1)
         page_obj = paginator.get_page(page_number)
@@ -35,6 +64,7 @@ def index(request):
         request,
         "emission/index.html",
         {
+            "q": query,
             "emissions_by_department": emissions_by_department,
             "user_departments": user_departments,
             "tab": int(tab),
@@ -95,6 +125,8 @@ def edit(request, id):
         raise Http404("No such department")
     if not emission.sequence.can_emit:
         raise Http404("No sequence available")
+    if emission.received:
+        raise Http404("Emission already received")
     if request.method == "POST":
         form = EmissionByDepartmentFormEdit(
             request.POST,

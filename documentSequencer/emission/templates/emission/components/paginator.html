@@ -1,0 +1,28 @@
+<div class="pagination is-right">
+    <span class="step-links">
+        {% for key, val in emissions_by_department.items %}
+        {% if key == user_department.department.id %}
+        {% if val.has_previous %}
+        <a
+            href="?page_{{ user_department.department.id }}=1&tab={{forloop.parentloop.counter0}}">&laquo;
+            primera</a>
+        <a
+            href="?page_{{ user_department.department.id }}={{ val.previous_page_number }}&tab={{forloop.parentloop.counter0}}">anterior</a>
+        {% endif %}
+
+        <span class="current">
+            Página {{ val.number }} de {{val.paginator.num_pages }}.
+        </span>
+
+        {% if val.has_next %}
+        <a
+            href="?page_{{ user_department.department.id }}={{ val.next_page_number }}&tab={{forloop.parentloop.counter0}}">siguiente</a>
+        <a
+            href="?page_{{ user_department.department.id }}={{ val.paginator.num_pages }}&tab={{forloop.parentloop.counter0}}">última
+            &raquo;</a>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+    </span>
+</div>

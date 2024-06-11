@@ -1,0 +1,29 @@
+<div class="card">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title"><span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">{{ emission.number }}</span>
+            </p>
+            {% if not emission.received %}
+            <a class="card-header-icon" aria-label="delete" href="{% url 'emissions:edit' emission.id %}">
+                <span class="icon">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                </span>
+            </a>
+            {% endif %}
+        </header>
+        <div class="card-content">
+            <p>{{emission.detail}}</p>
+            <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {{emission.destination}}</p>
+            <p><i class="fas fa-calendar-day" aria-hidden="true"></i> {{emission.date}}</p>
+            {% if emission.received %}
+            <p class="is-small"><i class="fas fa-check" aria-hidden="true"></i> {{emission.date_received}} ({{emission.user_received}})</p>
+            {% endif %}
+            <div class="content is-small has-text-right">
+                <p><i class="fas fa-id" aria-hidden="true"></i>
+                    {{emission.sequence.document|upper}}-{{ emission.number|stringformat:"03d" }}-{{emission.sequence.year}}
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>

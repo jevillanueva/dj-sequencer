@@ -2,16 +2,14 @@
 {% load i18n %}
 {% load static %}
 {% block menu %}
-<section class="hero is-info is-small">
-    <div class="hero-body">
-        <a class="title" href="{%url 'emissions:index' %}">◀ Home</a>
-        {% if emission %}
-        <h1 class="subtitle">{% trans "new_emission" %}</h1>
-        {% else %}
-        <h1 class="subtitle">{% trans "edit_emission" %}</h1>
-        {% endif %}
-    </div>
-</section>
+
+<a class="title" href="{%url 'emissions:index' %}">◀ Home</a>
+{% if emission %}
+<h1 class="subtitle">{% trans "new_emission" %}</h1>
+{% else %}
+<h1 class="subtitle">{% trans "edit_emission" %}</h1>
+{% endif %}
+
 {% endblock %}
 
 {% block content %}

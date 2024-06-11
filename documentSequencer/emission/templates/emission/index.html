@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block menu %}
+<p class="title">{% trans "emission" %}</p>
+{%endblock%}
 {% block content %}
-<section class="hero is-primary is-small">
-    <div class="hero-body">
-        <p class="title">{% trans "emission" %}</p>
-    </div>
-</section>
 <section class="section">
     <div class="container is-flex is-flex-direction-column">
         {%if not user_departments %}
@@ -16,6 +14,23 @@
             </div>
         </article>
         {% endif %}
+        <div class="spacing">
+            <form method="get">
+                <div class="field has-addons has-addons-fullwidth">
+                    <div class="control">
+                        <input class="input is-primary is-rounded" type="search" name="q" autocapitalize="none"
+                            autocomplete="search" value="{{q}}" placeholder='{% trans "search" %}'>
+                    </div>
+                    <div class="control">
+                        <button class="button is-primary is-rounded">
+                            <span class="icon is-medium is-right">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="spacing tabs-wrapper">
             <div class="tabs is-toggle is-toggle-rounded is-fullwidth">
                 <ul>
@@ -32,62 +47,25 @@
                     <li class="{% if forloop.counter0 == tab %}is-active{% endif %}">
                         <div>
                             <div class="spacing">
-                                <a href="{% url 'emissions:new_by_department' user_department.department.id %}" class="button is-primary is-rounded">
+                                <a href="{% url 'emissions:new_by_department' user_department.department.id %}"
+                                    class="button is-primary is-rounded">
                                     <span class="icon is-small"><i class="fas fa-circle-plus"
                                             aria-hidden="true"></i></span>
                                     <span>{% trans "new emission" %}</span>
                                 </a>
                             </div>
-                            <div class="columns is-multiline">
+                            <div class="spacing columns is-multiline">
                                 {% for key, val in emissions_by_department.items %}
                                 {% if key == user_department.department.id %}
                                 {% for emission in val %}
                                 <div class="column is-4">
-                                    <div class="card">
-                                        <div class="card">
-                                            <header class="card-header">
-                                                <p class="card-header-title">{{ emission }}</p>
-                                                <a class="card-header-icon" aria-label="delete" href="{% url 'emissions:edit' emission.id %}">
-                                                    <span class="icon">
-                                                        <i class="fas fa-edit" aria-hidden="true"></i>
-                                                    </span>
-                                                </a>
-                                            </header>
-                                        </div>
-                                    </div>
+                                    {% include 'emission/components/emission_item.html' %}
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                                 {% endfor %}
                             </div>
-                            <div class="pagination">
-                                <span class="step-links">
-                                    {% for key, val in emissions_by_department.items %}
-                                    {% if key == user_department.department.id %}
-                                    {% if val.has_previous %}
-                                    <a
-                                        href="?page_{{ user_department.department.id }}=1&tab={{forloop.parentloop.counter0}}">&laquo;
-                                        primera</a>
-                                    <a
-                                        href="?page_{{ user_department.department.id }}={{ val.previous_page_number }}&tab={{forloop.parentloop.counter0}}">anterior</a>
-                                    {% endif %}
-
-                                    <span class="current">
-                                        Página {{ val.number }} de {{val.paginator.num_pages }}.
-                                    </span>
-
-                                    {% if val.has_next %}
-                                    <a
-                                        href="?page_{{ user_department.department.id }}={{ val.next_page_number }}&tab={{forloop.parentloop.counter0}}">siguiente</a>
-                                    <a
-                                        href="?page_{{ user_department.department.id }}={{ val.paginator.num_pages }}&tab={{forloop.parentloop.counter0}}">última
-                                        &raquo;</a>
-                                    {% endif %}
-                                    {% endif %}
-                                    {% endfor %}
-
-                                </span>
-                            </div>
+                            {% include 'emission/components/paginator.html' %}
                         </div>
                     </li>
                     {% endfor %}
