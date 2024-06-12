@@ -1,6 +1,6 @@
 from django import forms
 from django.db import transaction
-from .models import Emission, UserDepartment, Sequence
+from .models import CustomUser, Department, Emission, UserDepartment, Sequence
 
 
 class EmissionForm(forms.ModelForm):
@@ -28,6 +28,7 @@ class EmissionForm(forms.ModelForm):
             instance.save()
         return instance
 
+
 class EmissionByDepartmentForm(forms.ModelForm):
     class Meta:
         model = Emission
@@ -42,7 +43,8 @@ class EmissionByDepartmentForm(forms.ModelForm):
             self.fields["sequence"].queryset = Sequence.objects.filter(
                 department__in=user_departments.values_list("department", flat=True),
                 can_emit=True,
-                department=self.department)
+                department=self.department,
+            )
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -53,10 +55,11 @@ class EmissionByDepartmentForm(forms.ModelForm):
             instance.save()
         return instance
 
+
 class EmissionByDepartmentFormEdit(forms.ModelForm):
     class Meta:
         model = Emission
-        fields = [ "sequence", "detail", "destination"]
+        fields = ["sequence", "detail", "destination"]
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
@@ -68,10 +71,60 @@ class EmissionByDepartmentFormEdit(forms.ModelForm):
             self.fields["sequence"].queryset = Sequence.objects.filter(
                 department__in=user_departments.values_list("department", flat=True),
                 can_emit=True,
-                department=self.department)
+                department=self.department,
+            )
 
     def save(self, commit=True):
         # actual emmision before update
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+
+
+class AdminEmissionByDepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Emission
+        fields = ["user", "sequence", "detail", "destination"]
+
+    def __init__(self, *args, **kwargs):
+        self.department = kwargs.pop("department", None)
+        super().__init__(*args, **kwargs)
+        self.fields["sequence"].queryset = Sequence.objects.filter(
+            can_emit=True, department=self.department
+        )
+        users_department = UserDepartment.objects.filter(department=self.department)
+        self.fields["user"].queryset = CustomUser.objects.filter(
+            pk__in=users_department.values_list("user", flat=True)
+        )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        sequence = Sequence.objects.select_for_update().get(pk=instance.sequence.pk)
+        instance.number = sequence.increment()
+        if commit:
+            instance.save()
+        return instance
+
+class AdminEmissionByDepartmentFormEdit(forms.ModelForm):
+    class Meta:
+        model = Emission
+        fields = ["user","sequence", "detail", "destination"]
+
+    def __init__(self, *args, **kwargs):
+        # self.user = kwargs.pop("user", None)
+        self.department = kwargs.pop("department", None)
+        super().__init__(*args, **kwargs)
+        self.fields["sequence"].disabled = True
+        user_departments = UserDepartment.objects.filter(department=self.department)
+        self.fields["sequence"].queryset = Sequence.objects.filter(
+        can_emit=True, department=self.department)
+        users_department = UserDepartment.objects.filter(department=self.department)
+        self.fields["user"].queryset = CustomUser.objects.filter(
+            pk__in=users_department.values_list("user", flat=True)
+        )
+
+    def save(self, commit=True):
         instance = super().save(commit=False)
         if commit:
             instance.save()

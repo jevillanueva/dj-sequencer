@@ -55,7 +55,7 @@
                     <li class="{% if forloop.counter0 == tab %}is-active{% endif %}">
                         <div>
                             <div class="spacing">
-                                <a href="{% url 'emissions:new_by_department' user_department.department.id %}"
+                                <a href="{% url 'emissions:admin_new_by_department' user_department.department.id %}"
                                     class="button is-primary is-rounded">
                                     <span class="icon is-small"><i class="fas fa-circle-plus"
                                             aria-hidden="true"></i></span>
@@ -67,7 +67,7 @@
                                 {% if key == user_department.department.id %}
                                 {% for emission in val %}
                                 <div class="column is-4">
-                                    {% include 'emission/components/emission_item.html' %}
+                                    {% include 'emission/components/admin_emission_item.html' %}
                                 </div>
                                 {% endfor %}
                                 {% endif %}

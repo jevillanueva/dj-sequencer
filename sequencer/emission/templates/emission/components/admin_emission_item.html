@@ -6,11 +6,18 @@
                     {{emission.number}}</span>
             </p>
             {% if not emission.received %}
-            <a class="card-header-icon" aria-label="delete" href="{% url 'emissions:edit' emission.id %}">
+            <a class="card-header-icon" aria-label="delete" href="{% url 'emissions:admin_edit' emission.id %}">
                 <span class="icon">
                     <i class="fas fa-edit" aria-hidden="true"></i>
                 </span>
             </a>
+            {%if can_administrate %}
+            <a class="card-header-icon" aria-label="delete" href="{% url 'emissions:admin_receive' emission.id %}">
+                <span class="icon">
+                    <i class="fas fa-check" aria-hidden="true"></i>
+                </span>
+            </a>
+            {% endif %}
             {% endif %}
         </header>
         <div class="card-content">

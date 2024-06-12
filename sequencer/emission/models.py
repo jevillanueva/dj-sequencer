@@ -81,9 +81,7 @@ class Emission(SoftDeleteMixin):
     
     class Meta:
         permissions = [
-            ('can_receive', 'Can receive emission'),
-            ('can_reasign', 'Can reasign emission'),
-            
+            ('can_administrate', 'Can reasign emission'),            
         ]
         
     
