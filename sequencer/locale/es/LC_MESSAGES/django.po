@@ -16,19 +16,20 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
 
-#: .\documentSequencer\emission\templates\emission\index.html:6
+#: .\sequencer\emission\templates\emission\index.html:6
 msgid "emission"
-msgstr "Emission"
+msgstr "Emisión"
 
-#: .\documentSequencer\templates\base.html:18
+#: .\sequencer\templates\base.html:18
 msgid "welcome"
-msgstr "Hi"
+msgstr "Hola"
 
-#: .\documentSequencer\templates\base.html:21
+#: .\sequencer\templates\base.html:21
 msgid "logout"
-msgstr "Logout"
+msgstr "Salir"
 
 #: .\venv\Lib\site-packages\django\contrib\messages\apps.py:16
 msgid "Messages"
