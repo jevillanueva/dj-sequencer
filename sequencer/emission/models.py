@@ -3,6 +3,20 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
+class GlobalSettings(models.Model):
+    name = models.CharField(max_length=255)
+    logo = models.ImageField(upload_to='logos/')
+    primary_color = models.CharField(max_length=7)
+    secondary_color = models.CharField(max_length=7)
+    language = models.CharField(max_length=2)
+
+    def __str__(self):
+        return "Global Settings"
+    
+    class Meta:
+        verbose_name = "Global Setting"
+        verbose_name_plural = "Global Settings"
+
 class ActiveManager (models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_active=True)
