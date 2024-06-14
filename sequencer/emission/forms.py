@@ -1,6 +1,6 @@
 from django import forms
 from django.db import transaction
-from .models import CustomUser, Department, Emission, UserDepartment, Sequence
+from .models import CustomUser, Department, Emission, EmissionFile, UserDepartment, Sequence
 
 
 class EmissionForm(forms.ModelForm):
@@ -129,3 +129,21 @@ class AdminEmissionByDepartmentFormEdit(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class EmissionFileForm(forms.ModelForm):
+    class Meta:
+        model = EmissionFile
+        fields = ["name","description","file"]
+
+    def __init__(self, *args, **kwargs):
+        self.emission = kwargs.pop("emission", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.emission = self.emission
+        instance.url = instance.file.url
+        if commit:
+            instance.save()
+        return instance
+

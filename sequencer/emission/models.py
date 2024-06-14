@@ -89,6 +89,8 @@ class EmissionFile(SoftDeleteMixin):
     emission = models.ForeignKey(Emission, on_delete=models.CASCADE)
     file = models.FileField(upload_to='emission_files/')
     url = models.URLField(null=True, blank=True)
+    name = models.TextField(max_length=500, blank=True)
+    description = models.TextField(max_length=1000, blank=True)
     
     def __str__(self):
         return f'{self.emission} - {self.file}'

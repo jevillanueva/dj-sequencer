@@ -8,8 +8,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import activate
 from django.core.paginator import Paginator
 
-from .forms import AdminEmissionByDepartmentForm, AdminEmissionByDepartmentFormEdit, EmissionByDepartmentForm, EmissionByDepartmentFormEdit, EmissionForm
-from .models import Department, Emission, Sequence, UserDepartment
+from .forms import AdminEmissionByDepartmentForm, AdminEmissionByDepartmentFormEdit, EmissionByDepartmentForm, EmissionByDepartmentFormEdit, EmissionFileForm, EmissionForm
+from .models import Department, Emission, EmissionFile, Sequence, UserDepartment
 
 
 # Create your views here.
@@ -149,7 +149,87 @@ def edit(request, id):
     return render(
         request, "emission/emission.html", {"form": form, "emission": emission}
     )
+@login_required
+def files(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    if emission.user != user:
+        raise Http404("No such emission")
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department
+    )
+    if not user_departments:
+        raise Http404("No such department")
+    files = EmissionFile.objects.filter(emission=emission)
+    return render(request, "emission/files.html", {"files": files, "emission": emission})
+    
+@login_required
+def upload(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    if emission.user != user:
+        raise Http404("No such emission")
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department
+    )
+    if not user_departments:
+        raise Http404("No such department")
+    if not emission.sequence.can_emit:
+        raise Http404("No sequence available")
+    if request.method == "POST":
+        form = EmissionFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.save(commit=False)
+            file.emission = emission
+            # TODO URL if remote file
+            # if not file.url:
+            #     file.url = file.file.url
+            file.save()
+            return redirect("emissions:files", id=emission.id)
+    else:
+        form = EmissionFileForm()
+    return render(
+        request, "emission/upload.html", {"form": form, "emission": emission}
+    )
 
+@login_required
+def delete_file(request, id, idfile):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    uidfile = uuid.UUID(idfile, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    file = get_object_or_404(EmissionFile, id=uidfile)
+    if file.emission.user != user:
+        raise Http404("No such emission")
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=file.emission.sequence.department
+    )
+    if not user_departments:
+        raise Http404("No such department")
+    if not emission.sequence.can_emit:
+        raise Http404("No sequence available")
+    file.delete()
+    return redirect("emissions:files", id=emission.id)
+
+@login_required
+def download_file(request, id, idfile):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    uidfile = uuid.UUID(idfile, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    file = get_object_or_404(EmissionFile, id=uidfile)
+    if file.emission.user != user:
+        raise Http404("No such emission")
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=file.emission.sequence.department
+    )
+    if not user_departments:
+        raise Http404("No such department")
+    response = HttpResponse(file.file, content_type="application/octet-stream")
+    response["Content-Disposition"] = f"attachment; filename={file.file.name}"
+    return response
 
 # Create your views here.
 @login_required
