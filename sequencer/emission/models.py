@@ -56,8 +56,9 @@ class Sequence(SoftDeleteMixin):
     class Meta:
         unique_together = ['department', 'document', 'year']
 
-    def increment(self):
-        self.sequence += 1
+
+    def increment(self, quantity=1):
+        self.sequence += quantity
         self.save()
         return self.sequence
 
@@ -71,10 +72,11 @@ class Emission(SoftDeleteMixin):
     new = models.BooleanField(default=True)
     received = models.BooleanField(default=False)
     date_received = models.DateField(null=True, blank=True)
-    detail = models.TextField(max_length=500, blank=True)
+    detail = models.TextField(max_length=1500, blank=True)
     destination = models.TextField(max_length=500, default='N/A')
     user_received = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_received', null=True, blank=True)
     number = models.IntegerField()
+    batch = models.UUIDField(null=True, blank=True)
     
     def __str__(self):
         return f'{self.number} - {self.detail} - {self.destination} - {self.date}'

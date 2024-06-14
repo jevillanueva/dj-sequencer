@@ -1,16 +1,18 @@
 from datetime import datetime
 import uuid
 from django.http import Http404, HttpResponse
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import activate
 from django.core.paginator import Paginator
-
 from .forms import (
+    AdminEmissionByDepartmentBatchForm,
     AdminEmissionByDepartmentForm,
     AdminEmissionByDepartmentFormEdit,
+    EmissionByDepartmentBatchForm,
     EmissionByDepartmentForm,
     EmissionByDepartmentFormEdit,
     EmissionFileForm,
@@ -103,6 +105,45 @@ def new(request, id):
         form = EmissionByDepartmentForm(user=request.user, department=department)
     return render(request, "emission/emission.html", {"form": form, "emission": None})
 
+@login_required
+def new_batch(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    department = get_object_or_404(Department, id=uid)
+    user_departments = UserDepartment.objects.filter(user=user, department=department)
+    if not user_departments:
+        raise Http404("No such department")
+    sequence = Sequence.objects.filter(department=department, can_emit=True).first()
+    if not sequence:
+        raise Http404("No sequence available")
+    if request.method == "POST":
+        form = EmissionByDepartmentBatchForm(
+            request.POST, user=request.user, department=department
+        )
+        if form.is_valid():
+            # Create new batch of emissions
+            with transaction.atomic():
+                id_batch = uuid.uuid4()
+                quantity = int(form.cleaned_data["quantity"])
+                current = sequence.sequence
+                sequence.increment(quantity)
+                emissions = [
+                    Emission(
+                        sequence=sequence,
+                        detail=f'{i}/{quantity}: {form.cleaned_data["detail"]} ({id_batch})',
+                        destination=form.cleaned_data["destination"],
+                        user=request.user,
+                        number=current + i,
+                        batch=id_batch,
+                    )
+                    for i in range(1,quantity+1)
+                ]
+                Emission.objects.bulk_create(emissions)
+                
+            return redirect("emissions:index")
+    else:
+        form = EmissionByDepartmentBatchForm(user=request.user, department=department)
+    return render(request, "emission/emission.html", {"form": form, "emission": None})
 
 @login_required
 def edit(request, id):
@@ -312,6 +353,45 @@ def admin_new(request, id):
         form = AdminEmissionByDepartmentForm(department=department)
     return render(request, "emission/emission.html", {"form": form, "emission": None})
 
+@login_required
+def admin_new_batch(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    department = get_object_or_404(Department, id=uid)
+    user_departments = UserDepartment.objects.filter(user=user, department=department)
+    if not user_departments:
+        raise Http404("No such department")
+    sequence = Sequence.objects.filter(department=department, can_emit=True).first()
+    if not sequence:
+        raise Http404("No sequence available")
+    if request.method == "POST":
+        form = AdminEmissionByDepartmentBatchForm(
+            request.POST, department=department
+        )
+        if form.is_valid():
+            # Create new batch of emissions
+            with transaction.atomic():
+                id_batch = uuid.uuid4()
+                quantity = int(form.cleaned_data["quantity"])
+                current = sequence.sequence
+                sequence.increment(quantity)
+                emissions = [
+                    Emission(
+                        sequence=sequence,
+                        detail=f'{i}/{quantity}: {form.cleaned_data["detail"]} ({id_batch})',
+                        destination=form.cleaned_data["destination"],
+                        user=form.cleaned_data["user"],
+                        number=current + i,
+                        batch=id_batch,
+                    )
+                    for i in range(1,quantity+1)
+                ]
+                Emission.objects.bulk_create(emissions)
+                
+            return redirect("emissions:admin_index")
+    else:
+        form = AdminEmissionByDepartmentBatchForm(department=department)
+    return render(request, "emission/emission.html", {"form": form, "emission": None})
 
 @login_required
 @permission_required("emission.can_administrate", raise_exception=True)

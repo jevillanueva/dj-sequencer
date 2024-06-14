@@ -75,13 +75,29 @@ class EmissionByDepartmentFormEdit(forms.ModelForm):
             )
 
     def save(self, commit=True):
-        # actual emmision before update
+        # actual emission before update
         instance = super().save(commit=False)
         if commit:
             instance.save()
         return instance
 
+class EmissionByDepartmentBatchForm(forms.ModelForm):
+    quantity = forms.IntegerField(min_value=2)
+    class Meta:
+        model = Emission
+        fields = ["sequence", "detail", "destination"]
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.department = kwargs.pop("department", None)
+        super().__init__(*args, **kwargs)
+        if self.user:
+            user_departments = UserDepartment.objects.filter(user=self.user)
+            self.fields["sequence"].queryset = Sequence.objects.filter(
+                department__in=user_departments.values_list("department", flat=True),
+                can_emit=True,
+                department=self.department,
+            )
 class AdminEmissionByDepartmentForm(forms.ModelForm):
     class Meta:
         model = Emission
@@ -105,6 +121,23 @@ class AdminEmissionByDepartmentForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class AdminEmissionByDepartmentBatchForm(forms.ModelForm):
+    quantity = forms.IntegerField(min_value=2)
+    class Meta:
+        model = Emission
+        fields = ["user", "sequence", "detail", "destination"]
+
+    def __init__(self, *args, **kwargs):
+        self.department = kwargs.pop("department", None)
+        super().__init__(*args, **kwargs)
+        self.fields["sequence"].queryset = Sequence.objects.filter(
+            can_emit=True, department=self.department
+        )
+        users_department = UserDepartment.objects.filter(department=self.department)
+        self.fields["user"].queryset = CustomUser.objects.filter(
+            pk__in=users_department.values_list("user", flat=True)
+        )
 
 class AdminEmissionByDepartmentFormEdit(forms.ModelForm):
     class Meta:
