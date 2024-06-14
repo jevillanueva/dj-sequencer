@@ -19,6 +19,11 @@
             </a>
             {% endif %}
             {% endif %}
+            <a class="card-header-icon" aria-label="files" href="{% url 'emissions:admin_files' emission.id %}">
+                <span class="icon">
+                    <i class="fas fa-file" aria-hidden="true"></i>
+                </span>
+            </a>
         </header>
         <div class="card-content">
             <p>{{emission.detail}}</p>

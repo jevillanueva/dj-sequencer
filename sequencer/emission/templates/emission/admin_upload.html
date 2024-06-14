@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block menu %}
+<a class="title" href="{%url 'emissions:admin_files' emission.id %}">◀
+    <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
+        {{emission.number}}
+    </span>
+    <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
+        {{emission.sequence.department}}
+    </span>
+    <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
+        {{emission.sequence.document}}
+    </span>
+    <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
+        {{emission.sequence.year}}
+    </span>
+</a>
+<h1 class="subtitle">{% trans "files" %}</h1>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="box">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="field">
+                    {{form}}
+                    {{ form.content.errors }}
+                </div>
+                <div class="field">
+                    <button class="button is-info" type="submit">📝 Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
