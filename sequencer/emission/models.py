@@ -4,11 +4,11 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class GlobalSettings(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='Sequencer')
     logo = models.ImageField(upload_to='logos/')
-    primary_color = models.CharField(max_length=7)
-    secondary_color = models.CharField(max_length=7)
-    language = models.CharField(max_length=2)
+    primary_color = models.CharField(max_length=7, default='#00d1b2' )
+    secondary_color = models.CharField(max_length=7, default='#4258ff' )
+    language = models.CharField(max_length=2, default='es' )
 
     def __str__(self):
         return "Global Settings"
@@ -97,7 +97,7 @@ class Emission(SoftDeleteMixin):
     
     class Meta:
         permissions = [
-            ('can_administrate', 'Can reasign emission'),            
+            ('can_administrate', 'Can Administrate emission'),            
         ]
         
     

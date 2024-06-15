@@ -35,7 +35,9 @@
                 <div class="container">
                     <div class="navbar-brand">
                         <a class="navbar-item has-text-grey" href="/">
+                            {% if global_settings.logo %}
                             <img src="{{global_settings.logo.url}}" alt="Logo" width="32" height="32">
+                            {% endif %}
                             <span class="subtitle">&nbsp;{{ global_settings.name }}</span>
                         </a>
                         <span class="navbar-burger" data-target="navbarMenuHeroA">

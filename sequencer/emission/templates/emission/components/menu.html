@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load static %}
+<nav class="tabs">
+    <ul>
+        <li><a href="{% url 'emissions:index'%}" class="title">{% trans "emission" %}</a></li>
+        {%if can_administrate %}
+        <li><a href="{% url 'emissions:admin_index'%}" class="subtitle">{% trans "administrate" %}</a></li>
+        {% endif %}
+    </ul>
+</nav>
