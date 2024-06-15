@@ -1,18 +1,32 @@
+{% load i18n %}
+{% load static %}
 <div class="card">
     <div class="card">
         <header class="card-header">
-            <p class="card-header-title"><span
-                    class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
-                    {{emission.number}}</span>
+            <p class="card-header-title">
+                <span class=" tags has-addons ">
+                    <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%} is-rounded">
+                        {{emission.number}}
+                    </span>
+                    {%if not emission.sequence.can_emit %}
+                    <span class="tag is-danger is-rounded">
+                        {% trans 'label_sequence_locked' %}
+                    </span>
+                    {% endif %}
+                </span>
             </p>
+            {% if emission.sequence.can_emit %}
             {% if not emission.received %}
-            <a class="card-header-icon" aria-label="edit" href="{% url 'emissions:edit' emission.id %}">
+            <a class="card-header-icon" aria-label="edit" href="{% url 'emissions:edit' emission.id %}"
+                data-tooltip="{% trans 'tooltip_edit'%}">
                 <span class="icon">
                     <i class="fas fa-edit" aria-hidden="true"></i>
                 </span>
             </a>
             {% endif %}
-            <a class="card-header-icon" aria-label="files" href="{% url 'emissions:files' emission.id %}">
+            {% endif %}
+            <a class="card-header-icon" aria-label="files" href="{% url 'emissions:files' emission.id %}"
+                data-tooltip="{% trans 'tooltip_files'%}">
                 <span class="icon">
                     <i class="fas fa-file" aria-hidden="true"></i>
                 </span>
@@ -23,13 +37,16 @@
             <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {{emission.destination}}</p>
             <p><i class="fas fa-calendar-day" aria-hidden="true"></i> {{emission.date}}</p>
             <p><i class="fas fa-user" aria-hidden="true"></i> {{emission.user}}</p>
+            {% if emission.file_count %}
+            <p><i class="fas fa-file" aria-hidden="true"></i> {{emission.file_count}}</p>
+            {% endif %}
             {% if emission.received %}
             <p class="is-small"><i class="fas fa-check" aria-hidden="true"></i> {{emission.date_received}}
                 ({{emission.user_received}})</p>
             {% endif %}
             <div class="content is-small has-text-right">
                 <p><i class="fas fa-id" aria-hidden="true"></i>
-                    {{emission.sequence.document|upper}}-{{emission.number|stringformat:"03d"}}-{{emission.sequence.year}}
+                    {{emission.sequence.document|upper}}-{{emission.number|stringformat:"04d"}}-{{emission.sequence.year}}
                 </p>
             </div>
 

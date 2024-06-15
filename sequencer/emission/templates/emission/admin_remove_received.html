@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block menu %}
+
+<a class="title" href="{%url 'emissions:admin_index' %}">◀ Home</a>
+<h1 class="subtitle">{% trans "remove_received" %}</h1>
+
+
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="box">
+            <form method="post">
+                {% csrf_token %}
+                {% include 'emission/components/emission_detail.html' %}
+                <div class="field">
+                    <button class="button is-info" type="submit">📝 {% trans "remove_received_emission" %}</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -2,7 +2,7 @@ from datetime import datetime
 import uuid
 from django.http import Http404, HttpResponse
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
@@ -47,22 +47,36 @@ def index(request):
     for user_department in user_departments:
         department = user_department.department
         if query:
-            emissions_list = Emission.objects.filter(
-                Q(sequence__department=department)
-                & Q(user=user)
-                & (
-                    Q(detail__icontains=query)
-                    | Q(destination__icontains=query)
-                    | Q(number=query_number)
-                    | Q(date=query_date)
-                    | Q(sequence__document__name__icontains=query)
-                    | Q(sequence__year__year=query_number)
+            emissions_list = (
+                Emission.objects.filter(
+                    Q(sequence__department=department)
+                    & Q(user=user)
+                    & (
+                        Q(detail__icontains=query)
+                        | Q(destination__icontains=query)
+                        | Q(number=query_number)
+                        | Q(date=query_date)
+                        | Q(sequence__document__name__icontains=query)
+                        | Q(sequence__year__year=query_number)
+                    )
                 )
-            ).order_by("received", "-number")
+                .annotate(
+                    file_count=Count(
+                        "emissionfile", filter=Q(emissionfile__is_active=True)
+                    )
+                )
+                .order_by("received", "-number")
+            )
         else:
-            emissions_list = Emission.objects.filter(
-                user=user, sequence__department=department
-            ).order_by("received", "-number")
+            emissions_list = (
+                Emission.objects.filter(user=user, sequence__department=department)
+                .annotate(
+                    file_count=Count(
+                        "emissionfile", filter=Q(emissionfile__is_active=True)
+                    )
+                )
+                .order_by("received", "-number")
+            )
         paginator = Paginator(emissions_list, 12)
         page_number = request.GET.get(f"page_{department.id}", 1)
         page_obj = paginator.get_page(page_number)
@@ -80,6 +94,7 @@ def index(request):
             "tab": int(tab),
         },
     )
+
 
 @login_required
 def new(request, id):
@@ -102,6 +117,7 @@ def new(request, id):
     else:
         form = EmissionByDepartmentForm(user=request.user, department=department)
     return render(request, "emission/emission.html", {"form": form, "emission": None})
+
 
 @login_required
 def new_batch(request, id):
@@ -134,14 +150,15 @@ def new_batch(request, id):
                         number=current + i,
                         batch=id_batch,
                     )
-                    for i in range(1,quantity+1)
+                    for i in range(1, quantity + 1)
                 ]
                 Emission.objects.bulk_create(emissions)
-                
+
             return redirect("emissions:index")
     else:
         form = EmissionByDepartmentBatchForm(user=request.user, department=department)
     return render(request, "emission/emission.html", {"form": form, "emission": None})
+
 
 @login_required
 def edit(request, id):
@@ -294,21 +311,35 @@ def admin_index(request):
     for user_department in user_departments:
         department = user_department.department
         if query:
-            emissions_list = Emission.objects.filter(
-                Q(sequence__department=department)
-                & (
-                    Q(detail__icontains=query)
-                    | Q(destination__icontains=query)
-                    | Q(number=query_number)
-                    | Q(date=query_date)
-                    | Q(sequence__document__name__icontains=query)
-                    | Q(sequence__year__year=query_number)
+            emissions_list = (
+                Emission.objects.filter(
+                    Q(sequence__department=department)
+                    & (
+                        Q(detail__icontains=query)
+                        | Q(destination__icontains=query)
+                        | Q(number=query_number)
+                        | Q(date=query_date)
+                        | Q(sequence__document__name__icontains=query)
+                        | Q(sequence__year__year=query_number)
+                    )
                 )
-            ).order_by("received", "-number")
+                .annotate(
+                    file_count=Count(
+                        "emissionfile", filter=Q(emissionfile__is_active=True)
+                    )
+                )
+                .order_by("received", "-number")
+            )
         else:
-            emissions_list = Emission.objects.filter(
-                sequence__department=department
-            ).order_by("received", "-number")
+            emissions_list = (
+                Emission.objects.filter(sequence__department=department)
+                .annotate(
+                    file_count=Count(
+                        "emissionfile", filter=Q(emissionfile__is_active=True)
+                    )
+                )
+                .order_by("received", "-number")
+            )
         paginator = Paginator(emissions_list, 12)
         page_number = request.GET.get(f"page_{department.id}", 1)
         page_obj = paginator.get_page(page_number)
@@ -349,6 +380,7 @@ def admin_new(request, id):
         form = AdminEmissionByDepartmentForm(department=department)
     return render(request, "emission/emission.html", {"form": form, "emission": None})
 
+
 @login_required
 def admin_new_batch(request, id):
     user = request.user
@@ -361,9 +393,7 @@ def admin_new_batch(request, id):
     if not sequence:
         raise Http404("No sequence available")
     if request.method == "POST":
-        form = AdminEmissionByDepartmentBatchForm(
-            request.POST, department=department
-        )
+        form = AdminEmissionByDepartmentBatchForm(request.POST, department=department)
         if form.is_valid():
             # Create new batch of emissions
             with transaction.atomic():
@@ -380,14 +410,15 @@ def admin_new_batch(request, id):
                         number=current + i,
                         batch=id_batch,
                     )
-                    for i in range(1,quantity+1)
+                    for i in range(1, quantity + 1)
                 ]
                 Emission.objects.bulk_create(emissions)
-                
+
             return redirect("emissions:admin_index")
     else:
         form = AdminEmissionByDepartmentBatchForm(department=department)
     return render(request, "emission/emission.html", {"form": form, "emission": None})
+
 
 @login_required
 @permission_required("emission.can_administrate", raise_exception=True)
@@ -436,6 +467,8 @@ def admin_receive(request, id):
         raise Http404("No such department")
     if emission.received:
         raise Http404("Emission already received")
+    if not emission.sequence.can_emit:
+        raise Http404("No sequence available")
     if request.method == "POST":
         emission.received = True
         emission.user_received = user
@@ -444,6 +477,30 @@ def admin_receive(request, id):
         return redirect("emissions:admin_index")
     else:
         return render(request, "emission/admin_receive.html ", {"emission": emission})
+
+@login_required
+@permission_required("emission.can_administrate", raise_exception=True)
+def admin_remove_received(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department
+    )
+    if not user_departments:
+        raise Http404("No such department")
+    if not emission.received:
+        raise Http404("Emission not received")
+    if not emission.sequence.can_emit:
+        raise Http404("No sequence available")
+    if request.method == "POST":
+        emission.received = False
+        emission.user_received = None
+        emission.date_received = None
+        emission.save()
+        return redirect("emissions:admin_index")
+    else:
+        return render(request, "emission/admin_remove_received.html ", {"emission": emission})
 
 
 @login_required
@@ -485,7 +542,9 @@ def admin_upload(request, id):
             return redirect("emissions:admin_files", id=emission.id)
     else:
         form = EmissionFileForm()
-    return render(request, "emission/admin_upload.html", {"form": form, "emission": emission})
+    return render(
+        request, "emission/admin_upload.html", {"form": form, "emission": emission}
+    )
 
 
 @login_required
