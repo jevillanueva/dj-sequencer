@@ -6,7 +6,6 @@ from django.db.models import Q
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import activate
 from django.core.paginator import Paginator
 from .forms import (
     AdminEmissionByDepartmentBatchForm,
@@ -24,7 +23,6 @@ from .models import Department, Emission, EmissionFile, Sequence, UserDepartment
 # Create your views here.
 @login_required
 def index(request):
-    activate("es")
     user = request.user  # the user
     email = user.email  # their email
     username = user.username  # their username
@@ -147,7 +145,6 @@ def new_batch(request, id):
 
 @login_required
 def edit(request, id):
-    activate("es")
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
@@ -273,7 +270,6 @@ def download_file(request, id, idfile):
 @login_required
 @permission_required("emission.can_administrate", raise_exception=True)
 def admin_index(request):
-    activate("es")
     user = request.user  # the user
     email = user.email  # their email
     username = user.username  # their username
@@ -396,7 +392,6 @@ def admin_new_batch(request, id):
 @login_required
 @permission_required("emission.can_administrate", raise_exception=True)
 def admin_edit(request, id):
-    activate("es")
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
@@ -431,7 +426,6 @@ def admin_edit(request, id):
 @login_required
 @permission_required("emission.can_administrate", raise_exception=True)
 def admin_receive(request, id):
-    activate("es")
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)

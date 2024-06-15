@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load colors %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -9,6 +10,20 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
     <title>{% block title %}{%endblock%}</title>
+    {% with global_settings.primary_color|hex_to_hls as primary_color %}
+    {% with global_settings.secondary_color|hex_to_hls as secondary_color %}
+    <style>
+        :root{
+            --bulma-primary-h: {{ primary_color.0 }};
+            --bulma-primary-s: {{ primary_color.2 }};
+            --bulma-primary-l: {{ primary_color.1 }};
+            --bulma-link-h: {{ secondary_color.0 }};
+            --bulma-link-s: {{ secondary_color.2 }};
+            --bulma-link-l: {{ secondary_color.1 }};
+        }
+    </style>
+    {% endwith %}
+    {% endwith %}
 </head>
 
 <body>
@@ -19,7 +34,8 @@
                 <div class="container">
                     <div class="navbar-brand">
                         <a class="navbar-item has-text-grey" href="/">
-                            {% trans "emission" %}{{ global_settings.name }}
+                            <img src="{{global_settings.logo.url}}" alt="Logo" width="32" height="32">
+                            <span class="subtitle">&nbsp;{{ global_settings.name }}</span>
                         </a>
                         <span class="navbar-burger" data-target="navbarMenuHeroA">
                             <span></span>
