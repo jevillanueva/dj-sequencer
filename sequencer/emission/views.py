@@ -1,11 +1,12 @@
 from datetime import datetime
 import uuid
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.db import transaction
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import Permission
 from django.core.paginator import Paginator
 from .forms import (
     AdminEmissionByDepartmentBatchForm,
@@ -16,6 +17,7 @@ from .forms import (
     EmissionByDepartmentFormEdit,
     EmissionFileForm,
     EmissionForm,
+    UserDepartmentForm,
 )
 from .models import Department, Emission, EmissionFile, Sequence, UserDepartment
 
@@ -285,13 +287,12 @@ def download_file(request, id, idfile):
 
 # Create your views here.
 @login_required
-@permission_required("emission.can_administrate", raise_exception=True)
+# @permission_required("emission.can_administrate", raise_exception=True)
 def admin_index(request):
     user = request.user  # the user
-    email = user.email  # their email
-    username = user.username  # their username
-    # emissions = Emission.objects.filter()
-    user_departments = UserDepartment.objects.filter(user=user)
+    user_departments = UserDepartment.objects.filter(user=user, can_administrate=True)
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     emissions_by_department = {}
     query = request.GET.get("q")
     # is a date
@@ -360,14 +361,16 @@ def admin_index(request):
 
 
 @login_required
-@permission_required("emission.can_administrate", raise_exception=True)
+# @permission_required("emission.can_administrate", raise_exception=True)
 def admin_new(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     department = get_object_or_404(Department, id=uid)
-    user_departments = UserDepartment.objects.filter(user=user, department=department)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=department, can_administrate=True
+    )
     if not user_departments:
-        raise Http404("No such department")
+        return HttpResponseForbidden("You don't have permission to access this page")
     sequence = Sequence.objects.filter(department=department, can_emit=True).first()
     if not sequence:
         raise Http404("No sequence available")
@@ -386,6 +389,11 @@ def admin_new_batch(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     department = get_object_or_404(Department, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     user_departments = UserDepartment.objects.filter(user=user, department=department)
     if not user_departments:
         raise Http404("No such department")
@@ -421,11 +429,16 @@ def admin_new_batch(request, id):
 
 
 @login_required
-@permission_required("emission.can_administrate", raise_exception=True)
+# @permission_required("emission.can_administrate", raise_exception=True)
 def admin_edit(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     user_departments = UserDepartment.objects.filter(
         user=user, department=emission.sequence.department
     )
@@ -455,11 +468,16 @@ def admin_edit(request, id):
 
 
 @login_required
-@permission_required("emission.can_administrate", raise_exception=True)
+# @permission_required("emission.can_administrate", raise_exception=True)
 def admin_receive(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     user_departments = UserDepartment.objects.filter(
         user=user, department=emission.sequence.department
     )
@@ -478,12 +496,18 @@ def admin_receive(request, id):
     else:
         return render(request, "emission/admin_receive.html ", {"emission": emission})
 
+
 @login_required
-@permission_required("emission.can_administrate", raise_exception=True)
+# @permission_required("emission.can_administrate", raise_exception=True)
 def admin_remove_received(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     user_departments = UserDepartment.objects.filter(
         user=user, department=emission.sequence.department
     )
@@ -500,15 +524,22 @@ def admin_remove_received(request, id):
         emission.save()
         return redirect("emissions:admin_index")
     else:
-        return render(request, "emission/admin_remove_received.html ", {"emission": emission})
+        return render(
+            request, "emission/admin_remove_received.html ", {"emission": emission}
+        )
 
 
 @login_required
-@permission_required("emission.can_administrate", raise_exception=True)
+# @permission_required("emission.can_administrate", raise_exception=True)
 def admin_files(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     user_departments = UserDepartment.objects.filter(
         user=user, department=emission.sequence.department
     )
@@ -525,6 +556,11 @@ def admin_upload(request, id):
     user = request.user
     uid = uuid.UUID(id, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     user_departments = UserDepartment.objects.filter(
         user=user, department=emission.sequence.department
     )
@@ -553,6 +589,11 @@ def admin_delete_file(request, id, idfile):
     uid = uuid.UUID(id, version=4)
     uidfile = uuid.UUID(idfile, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     file = get_object_or_404(EmissionFile, id=uidfile)
     user_departments = UserDepartment.objects.filter(
         user=user, department=file.emission.sequence.department
@@ -569,6 +610,11 @@ def admin_download_file(request, id, idfile):
     uid = uuid.UUID(id, version=4)
     uidfile = uuid.UUID(idfile, version=4)
     emission = get_object_or_404(Emission, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=emission.sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
     file = get_object_or_404(EmissionFile, id=uidfile)
     user_departments = UserDepartment.objects.filter(
         user=user, department=file.emission.sequence.department
@@ -578,3 +624,87 @@ def admin_download_file(request, id, idfile):
     response = HttpResponse(file.file, content_type="application/octet-stream")
     response["Content-Disposition"] = f"attachment; filename={file.file.name}"
     return response
+
+
+@login_required
+# @permission_required("emission.can_administrate", raise_exception=True)
+def admin_index_users(request):
+    user = request.user  # the user
+    user_departments = UserDepartment.objects.filter(user=user, can_administrate=True)
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
+    users_by_department = {}
+    query = request.GET.get("q")
+    for user_department in user_departments:
+        department = user_department.department
+        if query:
+            users_list = UserDepartment.objects.filter(
+                Q(department=department) & (Q(user__username__icontains=query))
+            ).order_by("user__username")
+        else:
+            users_list = UserDepartment.objects.filter(department=department).order_by(
+                "user__username"
+            )
+        paginator = Paginator(users_list, 12)
+        page_number = request.GET.get(f"page_{department.id}", 1)
+        page_obj = paginator.get_page(page_number)
+        users_by_department[department.id] = page_obj
+    tab = request.GET.get(f"tab", 0)
+    if not str(tab).isdigit():
+        tab = 0
+    return render(
+        request,
+        "emission/admin_index_users.html",
+        {
+            "q": query if query else "",
+            "users_by_department": users_by_department,
+            "user_departments": user_departments,
+            "tab": int(tab),
+        },
+    )
+
+
+@login_required
+# @permission_required("emission.can_administrate", raise_exception=True)
+def admin_new_user(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    department = get_object_or_404(Department, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
+    user_departments = UserDepartment.objects.filter(user=user, department=department)
+    if not user_departments:
+        raise Http404("No such department")
+    if request.method == "POST":
+        form = UserDepartmentForm(request.POST, user=user, department=department)
+        if form.is_valid():
+            user_department = form.save()
+            return redirect("emissions:admin_index_users")
+    else:
+        form = UserDepartmentForm(user=user, department=department)
+    return render(
+        request, "emission/admin_user.html", {"form": form, "department": department}
+    )
+
+
+@login_required
+# @permission_required("emission.can_administrate", raise_exception=True)
+def admin_delete_user(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    user_department = get_object_or_404(UserDepartment, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=user_department.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
+    admins = UserDepartment.objects.filter(
+        department=user_department.department, can_administrate=True
+    ).count()
+    if admins == 1 and user_department.can_administrate:
+        raise Http404("Can't delete the last admin")
+    user_department.delete()
+    return redirect("emissions:admin_index_users")

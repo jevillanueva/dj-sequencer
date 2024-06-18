@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block menu %}
+    {% include 'emission/components/menu.html' %}
+{%endblock%}
+{% block content %}
+<section class="section">
+    <div class="container is-flex is-flex-direction-column">
+        {%if not user_departments %}
+        <article class="message">
+            <div class="message-body">
+                {% trans "user not assigned to departments"%}
+            </div>
+        </article>
+        {% endif %}
+        {%if  user_departments %}
+        <h1 class="title">{% trans "title_admin_users"%}</h1>
+        <div class="spacing">
+            <form method="get">
+                <div class="field has-addons has-addons-fullwidth">
+                    <div class="control">
+                        <input class="input is-primary is-rounded" type="search" name="q" autocapitalize="none"
+                            autocomplete="search" value="{{q}}" placeholder='{% trans "search" %}'>
+                    </div>
+                    <div class="control">
+                        <button class="button is-primary is-rounded">
+                            <span class="icon is-medium is-right">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        <div class="spacing tabs-wrapper">
+            <div class="tabs is-toggle is-toggle-rounded is-fullwidth">
+                <ul>
+                    {% for user_department in user_departments %}
+                    <li class="{% if forloop.counter0 == tab %}is-active{% endif %}">
+                        <a>{{ user_department.department.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="tabs-content">
+                <ul>
+                    {% for user_department in user_departments %}
+                    <li class="{% if forloop.counter0 == tab %}is-active{% endif %}">
+                        <div>
+                            <div class="spacing">
+                                <a href="{% url 'emissions:admin_new_user' user_department.department.id %}"
+                                    class="button is-primary is-rounded">
+                                    <span class="icon is-small"><i class="fas fa-circle-plus"
+                                            aria-hidden="true"></i></span>
+                                    <span>{% trans "new user" %}</span>
+                                </a>
+                            </div>
+                            <div class="spacing columns is-multiline">
+                                {% for key, val in users_by_department.items %}
+                                {% if key == user_department.department.id %}
+                                {% for item in val %}
+                                <div class="column is-4">
+                                    {% include 'emission/components/admin_user_item.html' with user=item %}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% include 'emission/components/paginator.html' %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block plugins %}
+<script src="{% static 'js/bulmaJS/tabs.js' %}"></script>
+{% endblock %}

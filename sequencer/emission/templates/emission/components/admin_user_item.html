@@ -1,0 +1,33 @@
+{% load i18n %}
+{% load static %}
+<div class="card">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">{{user.user}}</p>
+            <a class="card-header-icon" aria-label="files" href="{% url 'emissions:admin_delete_user' user.id %}"
+                data-tooltip="{% trans 'tooltip_user_delete'%}">
+                <span class="icon">
+                    <i class="fas fa-cancel" aria-hidden="true"></i>
+                </span>
+            </a>
+        </header>
+        <div class="card-content">
+            <p><i class="fas fa-user" aria-hidden="true"></i> {{user.user}}</p>
+            <p><i class="fas fa-envelope" aria-hidden="true"></i> {{user.user.email}}</p>
+            <p><i class="fas fa-user" aria-hidden="true"></i> {{user.user.first_name}}</p>
+            <p><i class="fas fa-user" aria-hidden="true"></i> {{user.user.last_name}}</p>
+            <p><i class="fas fa-calendar-day" aria-hidden="true"></i> {{user.created_at}}</p>
+            <p class="has-text-right">
+                {% if user.can_administrate %}
+                <span class="tag is-primary is-rounded is-small">
+                    {%trans "can_administrate" %}
+                </span>
+                {% else %}
+                <span class="tag is-link is-rounded is-small">
+                    {%trans "can_not_administrate" %}
+                </span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>

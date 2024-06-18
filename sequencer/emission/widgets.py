@@ -68,3 +68,31 @@ class BulmaFileWidget(forms.ClearableFileInput):
         </div>
         """
         return mark_safe(input_group_html)
+
+
+class BulmaSwitchWidget(forms.CheckboxInput):
+    def __init__(self, attrs=None):
+        final_attrs = {"class": "styled"}
+        if attrs is not None:
+            final_attrs.update(attrs)
+        super().__init__(attrs=final_attrs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        # Llamar al método render del padre para obtener el HTML del select
+        switch_html = super().render(name, value, attrs, renderer)
+        checkbox_id = attrs.get("id", "") if attrs else ""
+        # Crear el HTML del contenedor con la clase "input-group"
+        input_group_html = f"""
+        <br>
+        <div class="field">
+            <p class="control">
+                <div class="b-checkbox is-primary is-circular">
+                    {switch_html}
+                    <label for="{checkbox_id}">
+                        {name.replace('_', ' ').capitalize()}
+                    </label>
+                </div>
+            </p>
+        </div>
+        """
+        return mark_safe(input_group_html)

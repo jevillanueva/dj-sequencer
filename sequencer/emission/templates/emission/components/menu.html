@@ -5,6 +5,7 @@
         <li><a href="{% url 'emissions:index'%}" class="title">{% trans "emission" %}</a></li>
         {%if can_administrate %}
         <li><a href="{% url 'emissions:admin_index'%}" class="subtitle">{% trans "administrate" %}</a></li>
+        <li><a href="{% url 'emissions:admin_index_users'%}" class="subtitle">{% trans "administrate_users" %}</a></li>
         {% endif %}
     </ul>
 </nav>

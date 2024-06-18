@@ -1,8 +1,22 @@
 from django import forms
 from django.db import transaction
 
-from .widgets import BulmaFileWidget, BulmaNumberWidget, BulmaSelectWidget, BulmaTextLineWidget, BulmaTextWidget
-from .models import CustomUser, Department, Emission, EmissionFile, UserDepartment, Sequence
+from .widgets import (
+    BulmaFileWidget,
+    BulmaNumberWidget,
+    BulmaSelectWidget,
+    BulmaSwitchWidget,
+    BulmaTextLineWidget,
+    BulmaTextWidget,
+)
+from .models import (
+    CustomUser,
+    Department,
+    Emission,
+    EmissionFile,
+    UserDepartment,
+    Sequence,
+)
 
 
 class EmissionForm(forms.ModelForm):
@@ -19,7 +33,7 @@ class EmissionForm(forms.ModelForm):
                 department__in=user_departments.values_list("department", flat=True),
                 can_emit=True,
             )
-            self.fields['sequence'].widget = BulmaSelectWidget()
+            self.fields["sequence"].widget = BulmaSelectWidget()
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -43,15 +57,14 @@ class EmissionByDepartmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user:
             user_departments = UserDepartment.objects.filter(user=self.user)
-            self.fields['detail'].widget = BulmaTextWidget()
-            self.fields['sequence'].widget = BulmaSelectWidget()
-            self.fields['destination'].widget = BulmaTextLineWidget()
+            self.fields["detail"].widget = BulmaTextWidget()
+            self.fields["sequence"].widget = BulmaSelectWidget()
+            self.fields["destination"].widget = BulmaTextLineWidget()
             self.fields["sequence"].queryset = Sequence.objects.filter(
                 department__in=user_departments.values_list("department", flat=True),
                 can_emit=True,
                 department=self.department,
-            )            
-            
+            )
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -72,9 +85,9 @@ class EmissionByDepartmentFormEdit(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
-        self.fields['detail'].widget = BulmaTextWidget()
-        self.fields['sequence'].widget = BulmaSelectWidget()
-        self.fields['destination'].widget = BulmaTextLineWidget()
+        self.fields["detail"].widget = BulmaTextWidget()
+        self.fields["sequence"].widget = BulmaSelectWidget()
+        self.fields["destination"].widget = BulmaTextLineWidget()
         self.fields["sequence"].disabled = True
         if self.user:
             user_departments = UserDepartment.objects.filter(user=self.user)
@@ -91,8 +104,10 @@ class EmissionByDepartmentFormEdit(forms.ModelForm):
             instance.save()
         return instance
 
+
 class EmissionByDepartmentBatchForm(forms.ModelForm):
     quantity = forms.IntegerField(min_value=2, widget=BulmaNumberWidget)
+
     class Meta:
         model = Emission
         fields = ["sequence", "detail", "destination"]
@@ -101,9 +116,9 @@ class EmissionByDepartmentBatchForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
-        self.fields['detail'].widget = BulmaTextWidget()
-        self.fields['sequence'].widget = BulmaSelectWidget()
-        self.fields['destination'].widget = BulmaTextLineWidget()
+        self.fields["detail"].widget = BulmaTextWidget()
+        self.fields["sequence"].widget = BulmaSelectWidget()
+        self.fields["destination"].widget = BulmaTextLineWidget()
         if self.user:
             user_departments = UserDepartment.objects.filter(user=self.user)
             self.fields["sequence"].queryset = Sequence.objects.filter(
@@ -111,6 +126,8 @@ class EmissionByDepartmentBatchForm(forms.ModelForm):
                 can_emit=True,
                 department=self.department,
             )
+
+
 class AdminEmissionByDepartmentForm(forms.ModelForm):
     class Meta:
         model = Emission
@@ -119,10 +136,10 @@ class AdminEmissionByDepartmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
-        self.fields['user'].widget = BulmaSelectWidget()
-        self.fields['sequence'].widget = BulmaSelectWidget()
-        self.fields['detail'].widget = BulmaTextWidget()
-        self.fields['destination'].widget = BulmaTextLineWidget()
+        self.fields["user"].widget = BulmaSelectWidget()
+        self.fields["sequence"].widget = BulmaSelectWidget()
+        self.fields["detail"].widget = BulmaTextWidget()
+        self.fields["destination"].widget = BulmaTextLineWidget()
         self.fields["sequence"].queryset = Sequence.objects.filter(
             can_emit=True, department=self.department
         )
@@ -139,8 +156,10 @@ class AdminEmissionByDepartmentForm(forms.ModelForm):
             instance.save()
         return instance
 
+
 class AdminEmissionByDepartmentBatchForm(forms.ModelForm):
     quantity = forms.IntegerField(min_value=2, widget=BulmaNumberWidget)
+
     class Meta:
         model = Emission
         fields = ["user", "sequence", "detail", "destination"]
@@ -148,10 +167,10 @@ class AdminEmissionByDepartmentBatchForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
-        self.fields['user'].widget = BulmaSelectWidget()
-        self.fields['sequence'].widget = BulmaSelectWidget()
-        self.fields['detail'].widget = BulmaTextWidget()
-        self.fields['destination'].widget = BulmaTextLineWidget()
+        self.fields["user"].widget = BulmaSelectWidget()
+        self.fields["sequence"].widget = BulmaSelectWidget()
+        self.fields["detail"].widget = BulmaTextWidget()
+        self.fields["destination"].widget = BulmaTextLineWidget()
         self.fields["sequence"].queryset = Sequence.objects.filter(
             can_emit=True, department=self.department
         )
@@ -160,23 +179,25 @@ class AdminEmissionByDepartmentBatchForm(forms.ModelForm):
             pk__in=users_department.values_list("user", flat=True)
         )
 
+
 class AdminEmissionByDepartmentFormEdit(forms.ModelForm):
     class Meta:
         model = Emission
-        fields = ["user","sequence", "detail", "destination"]
+        fields = ["user", "sequence", "detail", "destination"]
 
     def __init__(self, *args, **kwargs):
         # self.user = kwargs.pop("user", None)
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
-        self.fields['user'].widget = BulmaSelectWidget()
-        self.fields['sequence'].widget = BulmaSelectWidget()
-        self.fields['detail'].widget = BulmaTextWidget()
-        self.fields['destination'].widget = BulmaTextLineWidget()
+        self.fields["user"].widget = BulmaSelectWidget()
+        self.fields["sequence"].widget = BulmaSelectWidget()
+        self.fields["detail"].widget = BulmaTextWidget()
+        self.fields["destination"].widget = BulmaTextLineWidget()
         self.fields["sequence"].disabled = True
         user_departments = UserDepartment.objects.filter(department=self.department)
         self.fields["sequence"].queryset = Sequence.objects.filter(
-        can_emit=True, department=self.department)
+            can_emit=True, department=self.department
+        )
         users_department = UserDepartment.objects.filter(department=self.department)
         self.fields["user"].queryset = CustomUser.objects.filter(
             pk__in=users_department.values_list("user", flat=True)
@@ -188,17 +209,18 @@ class AdminEmissionByDepartmentFormEdit(forms.ModelForm):
             instance.save()
         return instance
 
+
 class EmissionFileForm(forms.ModelForm):
     class Meta:
         model = EmissionFile
-        fields = ["name","description","file"]
+        fields = ["name", "description", "file"]
 
     def __init__(self, *args, **kwargs):
         self.emission = kwargs.pop("emission", None)
         super().__init__(*args, **kwargs)
-        self.fields['name'].widget = BulmaTextLineWidget()
-        self.fields['description'].widget = BulmaTextWidget()
-        self.fields['file'].widget = BulmaFileWidget()
+        self.fields["name"].widget = BulmaTextLineWidget()
+        self.fields["description"].widget = BulmaTextWidget()
+        self.fields["file"].widget = BulmaFileWidget()
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -208,3 +230,26 @@ class EmissionFileForm(forms.ModelForm):
             instance.save()
         return instance
 
+
+class UserDepartmentForm(forms.ModelForm):
+    class Meta:
+        model = UserDepartment
+        fields = ["user","can_administrate"]
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.department = kwargs.pop("department", None)
+        super().__init__(*args, **kwargs)
+        self.fields["can_administrate"].widget = BulmaSwitchWidget()
+        self.fields["can_administrate"].label = ''
+        self.fields["user"].widget = BulmaSelectWidget()
+        self.fields["user"].queryset = CustomUser.objects.exclude(
+            pk=self.user.pk
+        ).exclude(pk__in=UserDepartment.objects.filter(department=self.department).values_list("user", flat=True))
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.department = self.department
+        if commit:
+            instance.save()
+        return instance

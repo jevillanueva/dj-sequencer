@@ -23,6 +23,10 @@ urlpatterns = [
     re_path(r'^admin/(?P<id>[0-9a-f-]{36})/files/$', views.admin_files, name='admin_files'),
     re_path(r'^admin/(?P<id>[0-9a-f-]{36})/files/(?P<idfile>[0-9a-f-]{36})/delete/$', views.admin_delete_file, name='admin_delete_file'),
     re_path(r'^admin/(?P<id>[0-9a-f-]{36})/files/(?P<idfile>[0-9a-f-]{36})/download/$', views.admin_download_file, name='admin_download_file'),
+    path('admin/users/', views.admin_index_users, name='admin_index_users'),
+    re_path(r'^admin/users/(?P<id>[0-9a-f-]{36})/new/$', views.admin_new_user, name='admin_new_user'),
+    re_path(r'^admin/users/(?P<id>[0-9a-f-]{36})/delete/$', views.admin_delete_user, name='admin_delete_user'),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
