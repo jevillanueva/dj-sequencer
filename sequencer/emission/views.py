@@ -17,6 +17,7 @@ from .forms import (
     EmissionByDepartmentFormEdit,
     EmissionFileForm,
     EmissionForm,
+    SequenceForm,
     UserDepartmentForm,
 )
 from .models import Department, Emission, EmissionFile, Sequence, UserDepartment
@@ -708,3 +709,86 @@ def admin_delete_user(request, id):
         raise Http404("Can't delete the last admin")
     user_department.delete()
     return redirect("emissions:admin_index_users")
+
+
+@login_required
+# @permission_required("emission.can_administrate", raise_exception=True)
+def admin_index_sequences(request):
+    user = request.user  # the user
+    user_departments = UserDepartment.objects.filter(user=user, can_administrate=True)
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
+    sequences_by_department = {}
+    query = request.GET.get("q")
+    for user_department in user_departments:
+        department = user_department.department
+        if query:
+            sequences_list = Sequence.objects.filter(
+                Q(department=department)
+                & (
+                    Q(document__name__icontains=query)
+                    | Q(year__year=query)
+                    | Q(sequence__icontains=query)
+                )
+            ).order_by("year", "-can_emit", "sequence")
+        else:
+            sequences_list = Sequence.objects.filter(department=department).order_by(
+                "year", "-can_emit", "sequence"
+            )
+        paginator = Paginator(sequences_list, 12)
+        page_number = request.GET.get(f"page_{department.id}", 1)
+        page_obj = paginator.get_page(page_number)
+        sequences_by_department[department.id] = page_obj
+    tab = request.GET.get(f"tab", 0)
+    if not str(tab).isdigit():
+        tab = 0
+    return render(
+        request,
+        "emission/admin_index_sequences.html",
+        {
+            "q": query if query else "",
+            "sequences_by_department": sequences_by_department,
+            "user_departments": user_departments,
+            "tab": int(tab),
+        },
+    )
+
+@login_required
+# @permission_required("emission.can_administrate", raise_exception=True)
+def admin_new_sequence(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    department = get_object_or_404(Department, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
+    user_departments = UserDepartment.objects.filter(user=user, department=department)
+    if not user_departments:
+        raise Http404("No such department")
+    if request.method == "POST":
+        form = SequenceForm(request.POST, department=department)
+        if form.is_valid():
+            sequence = form.save()
+            if not sequence:
+                return render(request, "emission/admin_sequence.html", {"form": form, "department": department})
+            
+            return redirect("emissions:admin_index_sequences")
+    else:
+        form = SequenceForm(department=department)
+    return render(request, "emission/admin_sequence.html", {"form": form, "department": department})
+
+@login_required
+def admin_toggle_sequence_emit(request, id):
+    user = request.user
+    uid = uuid.UUID(id, version=4)
+    sequence = get_object_or_404(Sequence, id=uid)
+    user_departments = UserDepartment.objects.filter(
+        user=user, department=sequence.department, can_administrate=True
+    )
+    if not user_departments:
+        return HttpResponseForbidden("You don't have permission to access this page")
+    sequence.can_emit = not sequence.can_emit
+    sequence.save()
+    return redirect("emissions:admin_index_sequences")

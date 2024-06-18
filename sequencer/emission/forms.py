@@ -12,10 +12,12 @@ from .widgets import (
 from .models import (
     CustomUser,
     Department,
+    Document,
     Emission,
     EmissionFile,
     UserDepartment,
     Sequence,
+    Year,
 )
 
 
@@ -234,20 +236,59 @@ class EmissionFileForm(forms.ModelForm):
 class UserDepartmentForm(forms.ModelForm):
     class Meta:
         model = UserDepartment
-        fields = ["user","can_administrate"]
+        fields = ["user", "can_administrate"]
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         self.department = kwargs.pop("department", None)
         super().__init__(*args, **kwargs)
         self.fields["can_administrate"].widget = BulmaSwitchWidget()
-        self.fields["can_administrate"].label = ''
+        self.fields["can_administrate"].label = ""
         self.fields["user"].widget = BulmaSelectWidget()
         self.fields["user"].queryset = CustomUser.objects.exclude(
             pk=self.user.pk
-        ).exclude(pk__in=UserDepartment.objects.filter(department=self.department).values_list("user", flat=True))
+        ).exclude(
+            pk__in=UserDepartment.objects.filter(
+                department=self.department
+            ).values_list("user", flat=True)
+        )
 
     def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.department = self.department
+        if commit:
+            instance.save()
+        return instance
+
+
+class SequenceForm(forms.ModelForm):
+    class Meta:
+        model = Sequence
+        fields = ["document", "year", "sequence", "can_emit"]
+
+    def __init__(self, *args, **kwargs):
+        self.department = kwargs.pop("department", None)
+        super().__init__(*args, **kwargs)
+        self.fields["document"].widget = BulmaSelectWidget()
+        self.fields["year"].widget = BulmaSelectWidget()
+        self.fields["sequence"].widget = BulmaNumberWidget()
+        self.fields["sequence"].initial = 0
+        self.fields["can_emit"].widget = BulmaSwitchWidget()
+        self.fields["can_emit"].label = ""
+        self.fields["document"].queryset = Document.objects.all()
+        self.fields["year"].queryset = Year.objects.all()
+
+    def save(self, commit=True):
+        if Sequence.objects.filter(
+            document=self.cleaned_data["document"],
+            year=self.cleaned_data["year"],
+            department=self.department,
+        ).exists():
+            self.add_error(
+                None,
+                "Already exists a sequence with the same document, year and department",
+            )
+            return None
         instance = super().save(commit=False)
         instance.department = self.department
         if commit:

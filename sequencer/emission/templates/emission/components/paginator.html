@@ -1,6 +1,6 @@
 <div class="pagination is-right">
     <span class="step-links">
-        {% for key, val in emissions_by_department.items %}
+        {% for key, val in items_by_department.items %}
         {% if key == user_department.department.id %}
         {% if val.has_previous %}
         <a

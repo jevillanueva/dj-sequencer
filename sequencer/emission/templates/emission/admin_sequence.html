@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block menu %}
+<a class="title" href="{%url 'emissions:admin_index_sequences' %}">◀
+    <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
+        {{department.name}}
+    </span>
+</a>
+<h1 class="subtitle">{% trans "new_user" %}</h1>
+{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="box">
+            <form method="post" action="">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="field">
+                    {{form}}
+                    {{ form.content.errors }}
+                </div>
+                <div class="field">
+                    <button class="button is-link" type="submit">📝 {%trans 'save_sequence' %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -73,7 +73,7 @@
                                 {% endif %}
                                 {% endfor %}
                             </div>
-                            {% include 'emission/components/paginator.html' %}
+                            {% include 'emission/components/paginator.html' with items_by_department=emissions_by_department %}
                         </div>
                     </li>
                     {% endfor %}

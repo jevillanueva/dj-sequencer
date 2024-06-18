@@ -26,6 +26,9 @@ urlpatterns = [
     path('admin/users/', views.admin_index_users, name='admin_index_users'),
     re_path(r'^admin/users/(?P<id>[0-9a-f-]{36})/new/$', views.admin_new_user, name='admin_new_user'),
     re_path(r'^admin/users/(?P<id>[0-9a-f-]{36})/delete/$', views.admin_delete_user, name='admin_delete_user'),
+    path('admin/sequences/', views.admin_index_sequences, name='admin_index_sequences'),
+    re_path(r'^admin/sequences/(?P<id>[0-9a-f-]{36})/new/$', views.admin_new_sequence, name='admin_new_sequence'),
+    re_path(r'^admin/sequences/(?P<id>[0-9a-f-]{36})/toggle/$', views.admin_toggle_sequence_emit, name='admin_toggle_sequence_emit'),
 
 ]
 if settings.DEBUG:

@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load static %}
+<div class="card">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">{{sequence}}</p>
+            <a class="card-header-icon" aria-label="files" href="{% url 'emissions:admin_toggle_sequence_emit' sequence.id %}"
+                data-tooltip="{% trans 'tooltip_toogle_sequence'%}">
+                <span class="icon">
+                    {% if sequence.can_emit %}
+                        <i class="fas fa-cancel" aria-hidden="true"></i>
+                    {% else %}
+                        <i class="fas fa-check" aria-hidden="true"></i>
+                    {% endif %}
+                </span>
+            </a>
+        </header>
+        <div class="card-content">
+            <p><i class="fas fa-file-alt" aria-hidden="true"></i> {{sequence.sequence}}</p>
+            <p><i class="fas fa-file-zipper" aria-hidden="true"></i> {{sequence.document}}</p>
+            <p><i class="fas fa-calendar-day" aria-hidden="true"></i> {{sequence.year}}</p>
+            <p class="has-text-right">
+                {% if sequence.can_emit %}
+                <span class="tag is-primary is-rounded is-small">
+                    {%trans "can_emit" %}
+                </span>
+                {% else %}
+                <span class="tag is-link is-rounded is-small">
+                    {%trans "can_not_emit" %}
+                </span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@
         </article>
         {% endif %}
         {%if  user_departments %}
-        <h1 class="title">{% trans "title_admin_users"%}</h1>
+        <h1 class="title">{% trans "title_admin_sequences"%}</h1>
         <div class="spacing">
             <form method="get">
                 <div class="field has-addons has-addons-fullwidth">
@@ -50,25 +50,25 @@
                     <li class="{% if forloop.counter0 == tab %}is-active{% endif %}">
                         <div>
                             <div class="spacing">
-                                <a href="{% url 'emissions:admin_new_user' user_department.department.id %}"
+                                <a href="{% url 'emissions:admin_new_sequence' user_department.department.id %}"
                                     class="button is-primary is-rounded">
                                     <span class="icon is-small"><i class="fas fa-circle-plus"
                                             aria-hidden="true"></i></span>
-                                    <span>{% trans "new user" %}</span>
+                                    <span>{% trans "new sequence" %}</span>
                                 </a>
                             </div>
                             <div class="spacing columns is-multiline">
-                                {% for key, val in users_by_department.items %}
+                                {% for key, val in sequences_by_department.items %}
                                 {% if key == user_department.department.id %}
                                 {% for item in val %}
                                 <div class="column is-4">
-                                    {% include 'emission/components/admin_user_item.html' with user=item %}
+                                    {% include 'emission/components/admin_sequence_item.html' with sequence=item %}
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                                 {% endfor %}
                             </div>
-                            {% include 'emission/components/paginator.html' with items_by_department=users_by_department %}
+                            {% include 'emission/components/paginator.html' with items_by_department=sequences_by_department %}
                         </div>
                     </li>
                     {% endfor %}
