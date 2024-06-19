@@ -32,7 +32,8 @@ urlpatterns = [
     path(
         "accounts/logout/", auth_views.LogoutView.as_view(next_page="/"), name="logout"
     ),
-    path("accounts/", include(auth_urls)),  # TODO Customize other auth views
+    # path("accounts/", include(auth_urls)),  # TODO Customize other auth views
+    path('accounts/', include('allauth.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

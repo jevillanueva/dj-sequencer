@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
-
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 # Create your models here.
 class GlobalSettings(models.Model):
@@ -127,3 +127,10 @@ class UserDepartment(SoftDeleteMixin):
 
     def __str__(self):
         return f"{self.department} - {self.user} - {'Admin' if self.can_administrate else 'User'}"
+
+class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
+
+    def populate_user(self, request, sociallogin, data):
+        user = super().populate_user(request, sociallogin, data)
+        user.username = user.email
+        return user
