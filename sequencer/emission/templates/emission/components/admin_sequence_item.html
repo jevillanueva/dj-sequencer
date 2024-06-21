@@ -5,7 +5,7 @@
         <header class="card-header">
             <p class="card-header-title">{{sequence}}</p>
             <a class="card-header-icon" aria-label="files" href="{% url 'emissions:admin_toggle_sequence_emit' sequence.id %}"
-                data-tooltip="{% trans 'tooltip_toogle_sequence'%}">
+                data-tooltip="{% trans 'toogle sequence'%}">
                 <span class="icon">
                     {% if sequence.can_emit %}
                         <i class="fas fa-cancel" aria-hidden="true"></i>
@@ -22,11 +22,11 @@
             <p class="has-text-right">
                 {% if sequence.can_emit %}
                 <span class="tag is-primary is-rounded is-small">
-                    {%trans "can_emit" %}
+                    {%trans "can emit" %}
                 </span>
                 {% else %}
                 <span class="tag is-link is-rounded is-small">
-                    {%trans "can_not_emit" %}
+                    {%trans "can not emit" %}
                 </span>
                 {% endif %}
             </p>

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block title %}{% trans "admin sequences" %}{%endblock%}
 {% block menu %}
     {% include 'emission/components/menu.html' %}
 {%endblock%}
@@ -15,7 +16,7 @@
         </article>
         {% endif %}
         {%if  user_departments %}
-        <h1 class="title">{% trans "title_admin_sequences"%}</h1>
+        <h1 class="title">{% trans "admin sequences"%}</h1>
         <div class="spacing">
             <form method="get">
                 <div class="field has-addons has-addons-fullwidth">

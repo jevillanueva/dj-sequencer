@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block title %}{% trans "new sequence" %}{%endblock%}
 {% block menu %}
 <a class="title" href="{%url 'emissions:admin_index_sequences' %}">◀
     <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
         {{department.name}}
     </span>
 </a>
-<h1 class="subtitle">{% trans "new_user" %}</h1>
+<h1 class="subtitle">{% trans "new sequence" %}</h1>
 {% endblock %}
 {% block content %}
 <section class="section">
@@ -21,7 +22,7 @@
                     {{ form.content.errors }}
                 </div>
                 <div class="field">
-                    <button class="button is-link" type="submit">📝 {%trans 'save_sequence' %}</button>
+                    <button class="button is-link" type="submit">📝 {%trans 'save' %}</button>
                 </div>
             </form>
         </div>

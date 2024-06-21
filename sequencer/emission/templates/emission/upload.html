@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block title %}{% trans "files" %}{%endblock%}
 {% block menu %}
 <a class="title" href="{%url 'emissions:files' emission.id %}">◀
     <span class="tag {%if emission.received %}is-primary{%else%}is-link{%endif%}  is-medium is-rounded">
@@ -31,7 +32,9 @@
                     {{ form.content.errors }}
                 </div>
                 <div class="field">
-                    <button class="button is-link" type="submit">📝 Save</button>
+                    <button class="button is-link" type="submit">
+                        📝 {% trans "save" %}
+                    </button>
                 </div>
             </form>
 

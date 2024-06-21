@@ -3,15 +3,10 @@
 {% load colors %}
 <!DOCTYPE html>
 <html>
-
-<head>
-
-</head>
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bulma-radio-checkbox.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
@@ -185,8 +180,8 @@
                             {% endif %}
                             {% url 'account_change_password' as change_password_url %}
                             {% if change_password_url %}
-                            <a class="navbar-item is-active" href="{{ change_password_url }}">{% trans "Change Password"
-                                %}</a>
+                            <a class="navbar-item is-active" href="{{ change_password_url }}">
+                                {% trans "Change Password" %}</a>
                             {% endif %}
                             {% url 'mfa_index' as mfa_url %}
                             {% if mfa_url %}

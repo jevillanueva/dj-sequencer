@@ -1,3 +1,5 @@
+{% load i18n %}
+{% load static %}
 <div class="pagination is-right">
     <span class="step-links">
         {% for key, val in items_by_department.items %}
@@ -5,20 +7,20 @@
         {% if val.has_previous %}
         <a
             href="?page_{{ user_department.department.id }}=1&tab={{forloop.parentloop.counter0}}">&laquo;
-            primera</a>
+            {% trans "first page" %}</a>&nbsp;&nbsp;
         <a
-            href="?page_{{ user_department.department.id }}={{ val.previous_page_number }}&tab={{forloop.parentloop.counter0}}">anterior</a>
+            href="?page_{{ user_department.department.id }}={{ val.previous_page_number }}&tab={{forloop.parentloop.counter0}}">{% trans "back" %}</a>
         {% endif %}
 
         <span class="current">
-            Página {{ val.number }} de {{val.paginator.num_pages }}.
+            {% trans "page" %} {{ val.number }} {% trans "of" %} {{val.paginator.num_pages }}.
         </span>
 
         {% if val.has_next %}
         <a
-            href="?page_{{ user_department.department.id }}={{ val.next_page_number }}&tab={{forloop.parentloop.counter0}}">siguiente</a>
+            href="?page_{{ user_department.department.id }}={{ val.next_page_number }}&tab={{forloop.parentloop.counter0}}">{% trans "next" %}</a>&nbsp;&nbsp;
         <a
-            href="?page_{{ user_department.department.id }}={{ val.paginator.num_pages }}&tab={{forloop.parentloop.counter0}}">última
+            href="?page_{{ user_department.department.id }}={{ val.paginator.num_pages }}&tab={{forloop.parentloop.counter0}}">{% trans "last page" %}
             &raquo;</a>
         {% endif %}
         {% endif %}

@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block title %}{% trans "emission" %}{%endblock%}
 {% block menu %}
 
-<a class="title" href="{%url 'emissions:index' %}">◀ Home</a>
+<a class="title" href="{%url 'emissions:index' %}">◀ {% trans "home" %}</a>
 {% if emission %}
-<h1 class="subtitle">{% trans "new_emission" %}</h1>
+<h1 class="subtitle">{% trans "new emission" %}</h1>
 {% else %}
-<h1 class="subtitle">{% trans "edit_emission" %}</h1>
+<h1 class="subtitle">{% trans "edit emission" %}</h1>
 {% endif %}
 
 {% endblock %}
@@ -24,7 +25,7 @@
                     {{ form.content.errors }}
                 </div>
                 <div class="field">
-                    <button class="button is-link" type="submit">📝 Save</button>
+                    <button class="button is-link" type="submit">📝 {% trans "save" %}</button>
                 </div>
             </form>
         </div>

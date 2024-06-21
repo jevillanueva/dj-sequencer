@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block title %}{% trans "receive" %}{%endblock%}
 {% block menu %}
 
-<a class="title" href="{%url 'emissions:admin_index' %}">◀ Home</a>
+<a class="title" href="{%url 'emissions:admin_index' %}">◀ {% trans "home" %}</a>
 <h1 class="subtitle">{% trans "receive" %}</h1>
 
 
@@ -17,7 +18,7 @@
                 {% csrf_token %}
                 {% include 'emission/components/emission_detail.html' %}
                 <div class="field">
-                    <button class="button is-info" type="submit">📝 {% trans "receive_emission" %}</button>
+                    <button class="button is-info" type="submit">📝 {% trans "save" %}</button>
                 </div>
             </form>
 

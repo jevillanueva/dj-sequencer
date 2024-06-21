@@ -10,7 +10,7 @@
                     </span>
                     {%if not emission.sequence.can_emit %}
                     <span class="tag is-danger is-rounded">
-                        {% trans 'label_sequence_locked' %}
+                        {% trans 'sequence locked' %}
                     </span>
                     {% endif %}
                 </span>
@@ -18,7 +18,7 @@
             {% if emission.sequence.can_emit %}
             {% if not emission.received %}
             <a class="card-header-icon" aria-label="edit" href="{% url 'emissions:edit' emission.id %}"
-                data-tooltip="{% trans 'tooltip_edit'%}">
+                data-tooltip="{% trans 'edit'%}">
                 <span class="icon">
                     <i class="fas fa-edit" aria-hidden="true"></i>
                 </span>
@@ -26,7 +26,7 @@
             {% endif %}
             {% endif %}
             <a class="card-header-icon" aria-label="files" href="{% url 'emissions:files' emission.id %}"
-                data-tooltip="{% trans 'tooltip_files'%}">
+                data-tooltip="{% trans 'files'%}">
                 <span class="icon">
                     <i class="fas fa-file" aria-hidden="true"></i>
                 </span>

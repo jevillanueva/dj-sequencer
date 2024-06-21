@@ -1,28 +1,30 @@
 {%extends 'base.html' %}
+{% load static %}
+{% load i18n %}
 {% load socialaccount %}
 {% block content %}
 <section class="section">
   <div class="container">
     <div class="box">
-      <h1 class="title">Log In</h1>
+      <h1 class="title">{%trans "login" %}</h1>
       <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
         <div class="field">
-          <label class="label" for="id_username">Username</label>
+          <label class="label is-uppercase" for="id_username" >{%trans "username" %}</label>
           <input class="input is-primary" type="text" name="username" autofocus="" autocapitalize="none"
             autocomplete="username" maxlength="150" required="" id="id_username">
         </div>
         <div class="field">
-          <label class="label" for="id_password">Password</label>
+          <label class="label is-uppercase" for="id_password" >{%trans "password" %}</label>
           <input class="input is-primary" type="password" name="password" autocomplete="current-password" required=""
             id="id_password">
         </div>
-        <button class="button is-primary" type="submit">Log In</button>
+        <button class="button is-primary" type="submit">{%trans "sign in" %}</button>
       </form>
       <hr>
       <a href="{% provider_login_url 'google' %}" class="btn btn-google">
-        Iniciar sesión con Google
+        {%trans "login with google" %}
       </a>
     </div>
   </div>

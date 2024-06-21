@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bulma-radio-checkbox.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
@@ -51,15 +51,14 @@
                     <div id="navbarMenuHeroA" class="navbar-menu">
                         <div class="navbar-end">
                             <span class="navbar-item">
-                                <span class="has-text-grey">
-                                    {% trans "welcome" %} {{ user.username }}!
-                                </span>
-                            </span>
-                            <span class="navbar-item">
-                                <form action="{% url 'logout' %}" method="post">
+                                <form action="{% url 'account_logout' %}" method="post">
                                     {% csrf_token %}
-                                    <button class="button is-small is-responsive is-rounded is-link"
-                                        type="submit">{%trans "logout" %}</button>
+                                    <div class="tags has-addons ">
+                                        <span class="tag is-medium">{% trans "welcome" %} {{ user.username }}!</span>
+                                        <button class="tag is-medium button is-small is-link" type="submit">
+                                            {%trans "logout" %}
+                                        </button>
+                                    </div>
                                 </form>
                             </span>
                         </div>
@@ -78,13 +77,24 @@
         </div>
     </section>
     {% endif %}
-
+    {% if messages %}
+    <div id="messages" class="is-hidden">
+        <ul>
+            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     {% block content %}
     {% endblock %}
     <script src="{% static 'js/bulmaJS/bulma.js' %}"></script>
+    <script src="{% static 'js/bulma-toast.min.js' %}"></script>
+    <script src="{% static 'js/messages.js' %}"></script>
     {% block plugins %}
     {% endblock %}
     <script src="https://kit.fontawesome.com/8ba9d1d584.js" crossorigin="anonymous"></script>
+    {% if messages %}
+    <script src="{% static 'js/notify.js' %}"></script>
+    {% endif %}
 </body>
 
 </html>

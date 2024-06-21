@@ -10,29 +10,29 @@
                     </span>
                     {%if not emission.sequence.can_emit %}
                     <span class="tag is-danger is-rounded">
-                        {% trans 'label_sequence_locked' %}
+                        {% trans 'sequence locked' %}
                     </span>
                     {% endif %}
                 </span>
             </p>
             {%if emission.sequence.can_emit %}
             {% if emission.received %}
-            <a class="card-header-icon" aria-label="edit" href="{% url 'emissions:admin_remove_received' emission.id %}"
-                data-tooltip="{% trans 'tooltip_remove_receive'%}">
+            <a class="card-header-icon" aria-label="remove received" href="{% url 'emissions:admin_remove_received' emission.id %}"
+                data-tooltip="{% trans 'remove received'%}">
                 <span class="icon">
                     <i class="fas fa-cancel has-text-link" aria-hidden="true"></i>
                 </span>
             </a>
             {% else %}
             <a class="card-header-icon" aria-label="edit" href="{% url 'emissions:admin_edit' emission.id %}"
-                data-tooltip="{% trans 'tooltip_edit'%}">
+                data-tooltip="{% trans 'edit'%}">
                 <span class="icon">
                     <i class="fas fa-edit" aria-hidden="true"></i>
                 </span>
             </a>
             {%if can_administrate %}
             <a class="card-header-icon" aria-label="receive" href="{% url 'emissions:admin_receive' emission.id %}"
-                data-tooltip="{% trans 'tooltip_receive'%}">
+                data-tooltip="{% trans 'receive'%}">
                 <span class="icon">
                     <i class="fas fa-check" aria-hidden="true"></i>
                 </span>
@@ -41,7 +41,7 @@
             {% endif %}
             {% endif %}
             <a class="card-header-icon" aria-label="files" href="{% url 'emissions:admin_files' emission.id %}"
-                data-tooltip="{% trans 'tooltip_files'%}">
+                data-tooltip="{% trans 'files'%}">
                 <span class="icon">
                     <i class="fas fa-file" aria-hidden="true"></i>
                 </span>

@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-
+{% block title %}{% trans "files" %}{%endblock%}
 {% block menu %}
-<a class="title" href="{%url 'emissions:index' %}">◀ Home</a>
+<a class="title" href="{%url 'emissions:index' %}">◀ {% trans "home" %}</a>
 <h1 class="subtitle">{% trans "files" %}</h1>
 {% endblock %}
 
