@@ -22,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-n-b1s=a$a66@=2%+0=8na-ry8w#8y6!afr%38#bw5#8p)%g6ut"
+SECRET_KEY = config('DJANGO_SECRET_KEY', default="django-insecure-n-b1s=a$a66@=2%+0=8na-ry8w#8y6!afr%38#bw5#8p)%g6ut")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default="*", cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -66,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "emission.middleware.ActivateLanguageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -75,8 +76,8 @@ SOCIALACCOUNT_PROVIDERS = {
         # credentials, or list them here:
         "APPS": [
             {
-                "client_id": config('GOOGLE_CLIENT_ID'),
-                "secret": config('GOOGLE_SECRET'),
+                "client_id": config('GOOGLE_CLIENT_ID',default=''),
+                "secret": config('GOOGLE_SECRET',default=''),
                 "key": "",
             },
         ],
@@ -183,3 +184,4 @@ AUTH_USER_MODEL = "emission.CustomUser"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" 
