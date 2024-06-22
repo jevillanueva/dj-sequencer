@@ -39,7 +39,7 @@ class EmissionForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        sequence = Sequence.objects.select_for_update().get(id=instance.sequence.id)
+        sequence = Sequence.objects.get(id=instance.sequence.id)
         sequence.increment()
         instance.number = sequence.sequence
         instance.user = self.user
@@ -70,7 +70,7 @@ class EmissionByDepartmentForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        sequence = Sequence.objects.select_for_update().get(pk=instance.sequence.pk)
+        sequence = Sequence.objects.get(pk=instance.sequence.pk)
         instance.number = sequence.increment()
         instance.user = self.user
         if commit:
@@ -152,7 +152,7 @@ class AdminEmissionByDepartmentForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        sequence = Sequence.objects.select_for_update().get(pk=instance.sequence.pk)
+        sequence = Sequence.objects.get(pk=instance.sequence.pk)
         instance.number = sequence.increment()
         if commit:
             instance.save()

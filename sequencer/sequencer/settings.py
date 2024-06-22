@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,12 +23,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('DJANGO_SECRET_KEY', default="django-insecure-n-b1s=a$a66@=2%+0=8na-ry8w#8y6!afr%38#bw5#8p)%g6ut")
+SECRET_KEY = config(
+    "DJANGO_SECRET_KEY",
+    default="django-insecure-n-b1s=a$a66@=2%+0=8na-ry8w#8y6!afr%38#bw5#8p)%g6ut",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default="*", cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config(
+    "DJANGO_ALLOWED_HOSTS",
+    default="*",
+    cast=lambda v: [s.strip() for s in v.split(",")],
+)
 
 
 # Application definition
@@ -76,8 +84,8 @@ SOCIALACCOUNT_PROVIDERS = {
         # credentials, or list them here:
         "APPS": [
             {
-                "client_id": config('GOOGLE_CLIENT_ID',default=''),
-                "secret": config('GOOGLE_SECRET',default=''),
+                "client_id": config("GOOGLE_CLIENT_ID", default=""),
+                "secret": config("GOOGLE_SECRET", default=""),
                 "key": "",
             },
         ],
@@ -119,12 +127,10 @@ WSGI_APPLICATION = "sequencer.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DJANGO_DATABASE_URL = config(
+    "DJANGO_DATABASE_URL", default="sqlite:///" + str(BASE_DIR / "db.sqlite3")
+)
+DATABASES = {"default": dj_database_url.config(default=DJANGO_DATABASE_URL)}
 
 
 # Password validation
@@ -184,4 +190,4 @@ AUTH_USER_MODEL = "emission.CustomUser"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
