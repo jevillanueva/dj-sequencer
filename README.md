@@ -64,3 +64,7 @@ To run the docker image, use the following command.
 ```python
 docker compose up
 ```
+To migrate
+```python
+docker compose exec web python manage.py migrate
+```
