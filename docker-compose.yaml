@@ -23,6 +23,7 @@ services:
     volumes:
       # - ./sequencer:/app
       - static_volume:/app/staticfiles
+      - media_volume:/app/media
     expose:
       - "8000"
     depends_on:
@@ -36,11 +37,14 @@ services:
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - static_volume:/app/static
+      - media_volume:/app/media
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - web
 
 volumes:
   postgres_data:
-  static_volume:	
+  static_volume:
+  media_volume:

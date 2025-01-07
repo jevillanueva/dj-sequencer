@@ -36,6 +36,12 @@ ALLOWED_HOSTS = config(
     default="*",
     cast=lambda v: [s.strip() for s in v.split(",")],
 )
+CSRF_TRUSTED_ORIGINS = config(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default="*",
+    cast=lambda v: [s.strip() for s in v.split(",")],
+)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
