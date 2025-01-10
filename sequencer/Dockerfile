@@ -20,7 +20,6 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Ejecutar migraciones y recoger archivos estáticos
-RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
 RUN django-admin compilemessages
 
